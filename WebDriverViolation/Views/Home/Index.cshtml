@@ -1,0 +1,176 @@
+﻿@model WebDriverViolation.Services.Models.SpecificModel.DashBoardModel
+@{
+    string confirmButtonId = "confirmButton";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+    
+
+<div class="row">
+    <!-- seo fact area start -->
+    <div class="col-lg-12">
+        <div class="row">
+            <div class="col-md-3 mt-5 mb-3">
+                <div class="card">
+                    <div class="seo-fact sbg4">
+                        <div class="p-3 d-flex justify-content-between align-items-center">
+                            <div class="seofct-icon">Pending</div>
+                            <h5 id="pendingViolationCountId">
+                                @Model.PendingViolationCount
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mt-md-5 mb-3">
+                <div class="card">
+                    <div class="seo-fact sbg2">
+                        <div class="p-3 d-flex justify-content-between align-items-center">
+                            <div class="seofct-icon"> Actual(@DateTime.Today.ToString("MMMM"))</div>
+                            <h5 id="thisMonthActualCountId">@Model.CurrentMonthActualViolationCount</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mt-5 mb-3">
+                <div class="card">
+                    <div class="seo-fact sbg3">
+                        <div class="p-3 d-flex justify-content-between align-items-center">
+                            <div class="seofct-icon"> Total Actual</div>
+                            <h5 id="totalActualCountId">@Model.TotalActualViolationCount</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mt-md-5 mb-3">
+                <div class="card">
+                    <div class="seo-fact sbg2">
+                        <div class="p-3 d-flex justify-content-between align-items-center">
+                            <div class="seofct-icon">Trucks Count</div>
+                            <h5>@Model.TotalTrucksCount</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 mt-3">
+        <div class="row">
+
+            <!-- trading history area start -->
+            <div class="col-lg-8 mt-sm-30 mt-xs-30">
+                <div class="card">
+                    <div class="card-body">
+                        @if (Model.LatestPendingViolationModels.Count > 0)
+                        {
+                            <div class="d-sm-flex justify-content-between align-items-center">
+                                <h4 class="header-title">
+                                    Pending Violation
+                                </h4>
+                            </div>
+                            <div class="trad-history mt-4">
+                                <div class="tab-content" id="myTabContent">
+                                    <div class="tab-pane fade show active" id="buy_order" role="tabpanel">
+                                        <div class="table-responsive" style="height:450px; overflow-y: scroll;">
+                                            <table class="dbkit-table" style="table-layout: fixed; font-family:'Lato', sans-serif; font-size:small" id="pendingOrders">
+                                                <tr class="heading-td">
+                                                    <td>Truck Name</td>
+@*                                                     <td>Truck Status</td>
+ *@                                                    <td>Type</td>
+                                                    <td>Avg. Probability</td>
+                                                    <td>Date</td>
+                                                    <td>Confirm</td>
+                                                </tr>
+                                                @foreach (var violation in Model.LatestPendingViolationModels)
+                                                {
+                                                    confirmButtonId = confirmButtonId + violation.Id;
+                                                    <tr id="@confirmButtonId" style="font-family:'Lato', sans-serif; font-size:small">
+                                                        <td style="font-family:'Lato', sans-serif; font-size:small">@violation.Truck.TruckName</td>
+                                                        @* <td style="font-family:'Lato', sans-serif; font-size:small">
+                                                            @if (violation.IsTruckMoving == true)
+                                                            {
+                                                                <span>Moving</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>Stopped</span>
+                                                            }
+                                                        </td> *@
+                                                        <td style="font-family:'Lato', sans-serif; font-size:small">@violation.ViolationType.Name</td>
+                                                        <td style="font-family:'Lato', sans-serif; font-size:small">@violation.AverageProbability</td>
+                                                        <td style="font-family:'Lato', sans-serif; font-size:small">
+                                                            <div style="overflow-wrap">@violation.Date.ToString("yyyy-MM-dd, hh:mm:ss")</div>
+                                                        </td>
+                                                        <td>
+                                                            <a class="btn btn-primary" onclick="showViolationDetails(@violation.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels), @JsonSerializer.Serialize(confirmButtonId))" title="Confirm" style="color:white">
+                                                                Confirm
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                        <h4 class="text-center p-5">there is no Pending Violation now</h4>
+                        }
+                    </div>
+                </div>
+            </div>
+            <!-- trading history area end -->
+            <!-- Live Crypto Price area start -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="header-title">
+                            Actual Violation Stats.
+                        </h4>
+                        <div class="cripto-live mt-1">
+                            <ul style="padding-right:0px">
+                                  @if (Model.ViolationTypeCounts != null)
+                        {
+                            @if (Model.ViolationTypeCounts.Count > 0)
+                            {
+                                @foreach (var type in Model.ViolationTypeCounts)
+                                {
+                                <hr>
+                                <li style="padding-bottom:0px; margin-bottom:0px">
+                                                <b style="font-size:smaller">@type.ViolationTypeName</b>
+                                                <span id="@type.ViolationTypeName" style="font-style:italic; font-weight:bold; font-size:smaller; color:red">@type.Count</span>
+                                </li>
+                                }
+                            }
+                        }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Live Crypto Price area end -->
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

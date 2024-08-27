@@ -1,0 +1,704 @@
+﻿@using WebDriverViolation.Models.Models.MasterModels;
+@inject UserManager<AspNetUser> userManager
+@inject SignInManager<AspNetUser> SignInManager
+@inject WebDriverViolation.Services.Contracts.IUserViolationNotificationService _userViolationNotificationService
+@inject WebDriverViolation.Services.Contracts.IEmployeeService _employeeService
+@inject WebDriverViolation.Services.Contracts.IViolationTypeService _violationTypeService;
+@{
+    var user = await userManager.GetUserAsync(User);
+    var displayName = user.UserName;
+    var roles = await userManager.GetRolesAsync(user);
+    var notifications = @_userViolationNotificationService.GetUserViolationNotification(user.Id);
+    int NotificationCount = 0;
+    var ViolationTypes = await _violationTypeService.GetAllViolationTypes();
+    Employee employee = await _employeeService.GetEmployeeByUserId(user.Id);
+    //var stepTwoRequestModels = _tripJobsiteService.GetPendingStepTwoRequests();
+    //if(stepTwoRequestModels != null)
+    //{
+    //    PendingRequestsCount = stepTwoRequestModels.Count;
+    //}
+
+        if (notifications != null)
+        {
+            NotificationCount = notifications.Where(n => n.Seen == false).Count();
+            notifications = notifications.Take(50).OrderByDescending(n => n.CreatedDate).ToList();
+        }
+    }
+   @if (SignInManager.IsSignedIn(User))
+    {
+     <!DOCTYPE html>
+     <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title> Driver Distraction | Dashboard </title>
+
+            <!--Google Font: Source Sans Pro-->
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+            <!--Font Awesome-->
+            <link rel="stylesheet" href="~/AdminLTE/plugins/fontawesome-free/css/all.min.css">
+            <!--Ionicons-->
+            <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+            <!--Tempusdominus Bootstrap 4-->
+            <link rel="stylesheet" href="~/AdminLTE/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+            <!--iCheck-->
+            <link rel="stylesheet" href="~/AdminLTE/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+            <!--JQVMap-->
+            <link rel="stylesheet" href="~/AdminLTE/plugins/jqvmap/jqvmap.min.css">
+            <!--Theme style-->
+            <link rel="stylesheet" href="~/AdminLTE/dist/css/adminlte.min.css">
+            <!--overlayScrollbars-->
+@*            <link rel="stylesheet" href="~/AdminLTE/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+*@            <!--Daterange picker-->
+            <link rel="stylesheet" href="~/AdminLTE/plugins/daterangepicker/daterangepicker.css">
+            <!--summernote-->
+@*            <link rel="stylesheet" href="~/AdminLTE/plugins/summernote/summernote-bs4.min.css">*@
+            <!-- DataTables -->
+            <link rel="stylesheet" href="~/AdminLTE/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+            <link rel="stylesheet" href="~/AdminLTE/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+            <link rel="stylesheet" href="~/AdminLTE/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+            <link href="~/css/site.css" rel="stylesheet" />
+            <link rel="stylesheet" href="~/AdminLTE/plugins/select2/css/select2.min.css">
+            <link rel="stylesheet" href="~/AdminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+
+        </head>
+        <body class="hold-transition sidebar-mini layout-fixed">
+            <div class="wrapper">
+                <!-- Preloader -->
+                <div class="preloader flex-column justify-content-center align-items-center">
+                
+                    <img class="animation__shake" src="~/images/driverLogin.jpg" alt="Take5Logo" height="60" width="60">
+                </div>
+                <!-- Navbar -->
+                <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+                    <!-- Left navbar links -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                        </li>
+                    </ul>
+
+                    <!-- Right navbar links -->
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Navbar Search -->
+                        <li class="nav-item">
+                        </li>
+
+                        <!-- Messages Dropdown Menu -->
+                        <!-- Notifications Dropdown Menu -->
+                        <input type="hidden" id="userId" value="@user.Id" />
+                        <audio id="myAudio" controls hidden>
+                            <source src="~/sound/notify.mp3" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <br>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" data-toggle="dropdown" href="#">
+                                <span style="color:black"><i class=" fas fa-user" style="font-size:large;"></i> @employee.EmployeeName</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <a href="/DriverViolation/Identity/Account/logout" class="dropdown-item">
+                                    <!-- Message Start -->
+                                    <div class="media">
+                                        <i class="fas fa-door-open"></i>
+                                        <span> Log Out</span>
+                                    </div>
+                                    <!-- Message End -->
+                                </a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" data-toggle="dropdown" href="#" id="notificationGroup">
+                                <i class="far fa-bell" style="font-size:x-large"></i>
+                                <span class="badge badge-primary navbar-badge" id="notificationCount1" style="font-size:small">@NotificationCount</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-xl dropdown-menu-right" id="notificationList" style="height:400px !important; overflow-x:scroll">
+                                <span class="dropdown-item dropdown-header" id="notificationCount">@NotificationCount Notifications</span>
+                                <div id="test">
+                                  @foreach (var notification in notifications)
+                                    {
+                                        <div class="dropdown-divider"></div>
+                                            <a onclick="showViolationDetails(@notification.ViolationNotification.ViolationID, @JsonSerializer.Serialize(ViolationTypes), 0)" class="dropdown-item">
+                                            <div class="media">
+
+                                                <img src="~/images/alert.png" alt="violation" class="img-size-50 img-circle mr-3">
+                                                <div class="media-body">
+                                                    <h5>
+                                                        @notification.ViolationNotification.Violation.ViolationType.Name
+                                                        <hr />
+                                                    </h5>
+                                                    <p class="text-md">
+                                                        @notification.ViolationNotification.Message
+                                                    </p>
+
+                                                    <p class="text-sm text-muted">@notification.ViolationNotification.Violation.CreatedDate.ToString("yyyy-MM-dd"), @notification.ViolationNotification.Violation.CreatedDate.ToString("HH-mm-ss") </p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                   }
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            <input type="hidden" id="userId" value="@employee.UserId" />
+                <!-- /.navbar -->
+                <!-- Main Sidebar Container -->
+                <aside class="main-sidebar sidebar-dark-primary elevation-4 mr-5">
+                    <!-- Brand Logo -->
+                                        
+                        <a  class="brand-link">
+                                            @*<img src="~/images/driverLogin.jpg" alt="3D.AI Logo" class="brand-image img-circle elevation-3" style="opacity: .8">*@
+                        <span class="brand-text font-weight-light text-center">3D.Ai</span>
+                    </a>
+                    <!-- Sidebar -->
+                    <div class="sidebar">
+                        <!-- Sidebar user panel(optional) -->
+                        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                            <div class="image">
+                                <img src="~/images/userProfile2.png" class="img-circle elevation-2" alt="User Image">
+                            </div>
+                            <div class="info">
+                                <a href="#" class="d-block">@employee.EmployeeName</a>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Menu -->
+                        <nav class="mt-2">
+                            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                                <li class="nav-item">
+                                <a asp-action="Index" asp-controller="Home" class="nav-link">
+                                        <i class="nav-icon fas fa-th"></i>
+                                        <p>
+                                            DashBoard
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item menu-open">
+                                    <a href="#" class="nav-link active">
+                                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Violations
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                            
+                                        <li class="nav-item">
+                                    <a asp-action="SearchViolation" asp-controller="Violation" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Show</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Truck Tracking
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+
+                                <li class="nav-item">
+                                    <a asp-action="SearchTruckTracking" asp-controller="TruckTracking" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Show</p>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                            </ul>
+                        
+                        </nav>
+                        <!-- /.sidebar-menu -->
+                    </div>
+                    <!-- /.sidebar -->
+                </aside>
+
+                <!-- Content Wrapper.Contains page content -->
+        <div class="content-wrapper">
+            <div class="modal fade" id="ViolationNotificationModal" tabindex="-1" role="dialog" aria-labelledby="requestModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requestModalLabel">Violation Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="clearElements()">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col col-lg-12 mb-2 mb-lg-0">
+                                    <div class="card mb-1" style="border-radius: .5rem; padding:10px">
+                                        <div class="card-header p-2">
+                                            <ul class="nav nav-pills">
+                                                <li class="nav-item"><a class="nav-link active" href="#info" data-toggle="tab">Details</a></li>
+                                                <li class="nav-item"><a class="nav-link" href="#Confirmation" data-toggle="tab">Confirmation</a></li>
+                                                <li class="nav-item"><a class="nav-link text-danger" href="#Rejection" data-toggle="tab">Rejection</a></li>
+                                            </ul>
+                                        </div><!-- /.card-header -->
+                                        <div class="card-body p-1">
+                                            <div class="tab-content">
+                                                <div class="active tab-pane" id="info">
+                                                      <h6>Violation Information</h6>
+                                                      <hr class="mt-0 mb-1">
+                                                      <span id="confirmedOrNot" style="display:none"></span>
+                                                    <strong style="text-decoration:underline; display:block; color:dodgerblue"><i class="fas fa-book mr-1"></i>Violation</strong>
+                                                    <div class="row pt-1">
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Truck Number:- </label>
+                                                            <label class="text-muted" id="ViolationTruckID"></label>
+                                                        </div>
+                                                        <div class="col-lg-12 mb-1">
+                                                                <label class="control-label model-label">Suggested Type:- </label>
+                                                            <label class="text-muted" id="ViolationType"></label>
+                                                        </div>
+                                                            <div class="col-lg-12 mb-1">
+                                                                <label class="control-label model-label">Probability:- </label>
+                                                                <label class="text-muted" id="Confidence"></label>
+                                                            </div>
+                                                            <div class="col-lg-12 mb-1">
+                                                                <label class="control-label model-label">AverageConfidence:- </label>
+                                                                <label class="text-muted" id="AverageConfidence"></label>
+                                                            </div>
+
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Date:- </label>
+                                                            <label class="text-muted" id="ViolationDate"></label>
+                                                        </div>
+
+                                                            <div class="col-lg-12 mb-1">
+                                                                <label class="control-label model-label">Accuracy Level:- </label>
+                                                                <label class="text-muted" id="AccuracyLevel"></label>
+                                                            </div>
+
+                                                    </div>
+                                                    <div class="row pt-1">
+                                                        <div class="col-lg-12 mb-1">
+                                                                <img src="" style="width: 100%; height:70% " id="ViolationImageID">
+                                                                <input  type="hidden" id="violationImgs" value=""/>
+                                                                <input type="hidden" id="violationProbabilities" value="" />
+                                                                <input id="currentViolationImgsNumber" type="hidden"/>
+                                                        </div>
+                                                    </div>
+                                                       <div class="row pt-1">
+                                                        <div class="col-lg-12 mb-1">
+                                                                <div id="arrowButtons">
+                                                                    <button id="previousImg" class="btn-primary" onclick="changeImage('down')">Previous</button>||
+                                                                    <button id="NextImg" class="btn-primary" onclick="changeImage('up')">Next</button>
+
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane" id="Confirmation">
+                                                    <h6>Confirmation</h6>
+                                                    <hr class="mt-0 mb-1">
+                                                    <strong style="text-decoration:underline; display:block; color:dodgerblue"><i class="fas fa-book mr-1"></i>Violation</strong>
+                                                    <div class="row pt-1">
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Confirmation Status </label>
+                                                            <label class="text-muted" id="ConfirmationStatusId"></label>
+                                                        </div>
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Suggested Type </label>
+                                                            <label class="text-muted" id="SuggestedType"></label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row pt-1" id="NeedConfirmation">
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Confirmed Type:- </label>
+                                                            <select class="form-control select2bs4" style="width: 100%;" id="ConfirmedTypeList">
+                                                            </select>                                                            
+                                                        </div>
+                                                        <div class="col-lg-6 mb-1" id="ConfirmationButton">
+                                                            <label hidden id="violationId"></label>
+                                                            <button type="button" class="btn btn-success" onclick="addNewConfirmation()">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row pt-1" id="ConfirmationBy">
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Confirmed Type:- </label>
+                                                            <label class="text-muted" id="ConfirmedTypeId"></label>
+                                                        </div>
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Confirmation By </label>
+                                                            <label class="text-muted" id="ConfirmationById"></label>
+                                                        </div>
+                                                        <div class="col-lg-12 mb-1">
+                                                            <label class="control-label model-label">Confirmation Date </label>
+                                                            <label class="text-muted" id="ConfirmedDate"></label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                    <div class="tab-pane" id="Rejection" style="min-height:100px">
+                                                        <div id="RejectionButtonDiv" class="d-flex justify-content-center pt-8">
+                                                            <button type="button" id="RejectionButton" class="btn btn-danger btn-lg" style="display:none" onclick="addRejection()">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                            <Span id="RejectionText" class="text-lg" style="display:none">Rejected</Span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="clearElements()">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            <section class="content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </section>
+
+            </div>
+                <!-- /.content-wrapper -->
+                <footer class="main-footer">
+                    <strong>Copyright &copy; 2014-2021 <a href="#"> Cemex 2023 </a>.</strong>
+                    All rights reserved.
+                    <div class="float-right d-none d-sm-inline-block">
+                        <b>Version</b> 3.1.0
+                    </div>
+                </footer>
+
+                <!-- Control Sidebar -->
+                <aside class="control-sidebar control-sidebar-dark">
+                    <!-- Control sidebar content goes here -->
+                </aside>
+                <!-- /.control-sidebar -->
+            </div>
+
+            <!-- ./wrapper -->
+            <!-- jQuery -->
+            <script src="~/AdminLTE/plugins/jquery/jquery.min.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <!--jQuery UI 1.11.4 -->
+            <script src="~/AdminLTE/plugins/jquery-ui/jquery-ui.min.js"></script>
+            <!--Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+            <script>
+                $.widget.bridge('uibutton', $.ui.button)
+            </script>
+            <!-- Bootstrap 4 -->
+            <script src="~/js/popper.min.js"></script>
+            <script src="~/AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+            <!--ChartJS-->
+            <script src="~/AdminLTE/plugins/chart.js/Chart.min.js"></script>
+            <!-- Sparkline -->
+            <script src="~/AdminLTE/plugins/sparklines/sparkline.js"></script>
+            <!--JQVMap-->
+            <script src="~/AdminLTE/plugins/jqvmap/jquery.vmap.min.js"></script>
+            <script src="~/AdminLTE/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+            <!--jQuery Knob Chart -->
+            <script src="~/AdminLTE/plugins/jquery-knob/jquery.knob.min.js"></script>
+            <!--daterangepicker-->
+@*            <script src="~/AdminLTE/plugins/moment/moment.min.js"></script>
+*@            <script src="~/AdminLTE/plugins/daterangepicker/daterangepicker.js"></script>
+            <!--Tempusdominus Bootstrap 4 -->
+            <script src="~/AdminLTE/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+@*            <!--Summernote-->
+            <script src="~/AdminLTE/plugins/summernote/summernote-bs4.min.js"></script>
+            <!-- overlayScrollbars -->
+            <script src="~/AdminLTE/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>*@
+            <!-- DataTables  & Plugins -->
+            <script src="~/AdminLTE/plugins/datatables/jquery.dataTables.min.js"></script>
+            <script src="~/AdminLTE/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+            <script src="~/AdminLTE/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+            <script src="~/AdminLTE/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+      @*      <script src="~/AdminLTE/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+            <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>*@
+            <script src="~/AdminLTE/plugins/jszip/jszip.min.js"></script>
+   
+            <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+@*            <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+            <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>*@
+            <script src="~/AdminLTE/plugins/inputmask/jquery.inputmask.min.js"></script>
+            <script src="~/js/sweetalert.min.js"></script>
+            <script src="~/AdminLTE/plugins/select2/js/select2.full.min.js"></script>
+
+            <!--AdminLTE App -->
+            <script src="~/AdminLTE/dist/js/adminlte.js"></script>
+            <!--AdminLTE for demo purposes -->
+            <script src="~/AdminLTE/dist/js/demo.js"></script>
+            <script src="~/AdminLTE/dist/js/pages/dashboard.js"></script>
+            <script src="~/lib/aspnet/signalr/dist/browser/signalr.js"></script>
+            <script src="~/js/JQuery/jquery.timeago.js"></script>
+            <script src="~/lib/aspnet-signalr/signalr.js"></script>
+            <script src="~/js/site.js"></script>
+            <script src="~/js/sweetalert.min.js"></script>
+            <script>
+                $(document).ready(function () 
+                {
+                    $('#notificationGroup').click(function () {
+                        var url = '@Url.Content("~/")' + "Home/updateSeenNotification";
+                        $.getJSON(url, function (data)
+                        {
+                            if (data == true) {
+                                document.getElementById("notificationCount1").innerText = 0;
+                            }
+                        });
+                    });
+                });
+                $(function () 
+                {
+                    $("#example1").DataTable({
+                        "responsive": true, "lengthChange": false, "autoWidth": false,
+                        "buttons": ["excel"]
+                    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                });
+
+            </script>
+            <script>
+    function clearElements() {
+        $(".TimeInfo").remove();
+                var cancelBlock = document.getElementById("RejectionButton");
+        if (cancelBlock != null) {
+           // cancelBlock.remove();
+        }
+        var requestWhoApprovedDiv = document.getElementById("requestWhoApprovedDiv");
+        if (requestWhoApprovedDiv != null) {
+            requestWhoApprovedDiv.style.display = 'none';
+        }
+        var responseDateDiv = document.getElementById("responseDateDiv");
+        if (responseDateDiv != null) {
+            responseDateDiv.style.display = 'none';
+        }
+
+        var requestData = document.getElementById("requestData");
+        if (requestData != null) {
+            requestData.style.display = 'none';
+        }
+        var warningBlock = document.getElementById("warningBlock");
+        if (warningBlock != null) {
+            warningBlock.style.display = 'none';
+        }
+        document.getElementById("warnTitle").setAttribute("style", "color:black");
+    }
+
+      function showViolationDetails(id, TypesList, confirmButtonId)
+        {
+            var url = '@Url.Content("~/")' + "Violation/getViolationDetails";
+                        $.getJSON(url, { violationId: id }, function (data) 
+                        {
+                            if (data != null) 
+                            {
+                               // alert(data["PriobabilityOfViolationsWithSameCode"]);
+                                document.getElementById("violationImgs").innerText = data["images"];
+                                document.getElementById("currentViolationImgsNumber").innerText = 0;
+                                document.getElementById("AccuracyLevel").innerText = data["ViolationAccuracyLevelDescription"];
+                                document.getElementById("confirmedOrNot").innerText = confirmButtonId;
+                                document.getElementById("ViolationTruckID").innerText = data["TruckID"];
+                                document.getElementById("ViolationType").innerText = data["ViolationType"]["Name"];
+                                document.getElementById("ViolationDate").innerText = new Date(data["Date"]).toLocaleString('en-US');
+                                document.getElementById("ViolationImageID").src = data["images"][0];
+                                document.getElementById("ConfirmationStatusId").innerText = data["ConfirmationStatus"]["Name"];
+                                document.getElementById("SuggestedType").innerText = data["ViolationType"]["Name"];
+                               document.getElementById("Confidence").innerText = data["PriobabilityOfViolationsWithSameCode"][0];
+                               document.getElementById("violationProbabilities").innerText = data["PriobabilityOfViolationsWithSameCode"];
+                               document.getElementById("AverageConfidence").innerText = data["AverageProbability"];
+                                document.getElementById("violationId").textContent = data["Id"];
+                                if (data["ConfirmationStatus"]["Name"] == "Pending") 
+                                {
+                                    document.getElementById("ConfirmationBy").style.display = 'none';
+                                    document.getElementById("NeedConfirmation").style.display = '';
+                                   document.getElementById("RejectionButton").style.display = '';
+                                  document.getElementById("RejectionText").style.display = 'none';
+                                    var TypesDD = document.getElementById("ConfirmedTypeList");
+                                    if (TypesList.length > 0) 
+                                    {
+                                        for(var index =0; index<TypesList.length; index++)
+                                        {
+                                            var op = document.createElement('option');
+                                            op.text = TypesList[index].Name;
+                                            op.value = TypesList[index].ID;
+                                            if (TypesList[index].Text == data["ViolationType"]["Name"])
+                                            {
+                                                op.selected = true;
+                                            }
+                                            TypesDD.options[index] = op;
+                                        }
+                                    }
+                                 }
+                                    else if (data["ConfirmationStatus"]["Name"] == "Confirmed") 
+                                    {
+                                        document.getElementById("ConfirmationBy").style.display = '';
+                                        document.getElementById("NeedConfirmation").style.display = 'none';
+                                        document.getElementById("ConfirmedTypeId").innerText = data["ConfirmationViolationTypeName"];
+                                        document.getElementById("ConfirmationById").innerText = data["ConfirmedByUserName"];
+                                        document.getElementById("ConfirmedDate").innerText = data["ConfirmationDate"];
+                                        if (data["ConfirmationViolationTypeName"] =="Rejected")
+                                        {
+                                            document.getElementById("RejectionButton").style.display = 'none';
+                                            document.getElementById("RejectionText").style.display = '';
+                                            document.getElementById("ConfirmedTypeId").style.color='red';
+                                        }
+                                        else
+                                        {
+                                            document.getElementById("ConfirmedTypeId").style.color = 'green';
+                                            document.getElementById("RejectionText").style.display = '';
+                                           document.getElementById("RejectionText").innerText = "No Rejection";
+                                           document.getElementById("RejectionText").style.color = 'black';
+                                          document.getElementById("RejectionButton").style.display = 'none';
+                                        }
+                                    }
+                                 $('#ViolationNotificationModal').modal('show');
+                             }
+                       });
+                   }
+
+            function changeImage(status)
+            {
+                var currentImgIndex = parseInt(document.getElementById("currentViolationImgsNumber").innerText);
+                var newIndex = 0;
+                var images =    document.getElementById("violationImgs").innerText.split(",");
+                var probabilities = document.getElementById("violationProbabilities").innerText.split(",");
+                alert(probabilities);
+                if(status =="up")
+                {
+                    if(currentImgIndex == 2)
+                    {
+                        document.getElementById("ViolationImageID").src =images[newIndex];
+                        document.getElementById("Confidence").innerText = probabilities[newIndex];
+                    }
+                    else
+                    {
+                        newIndex = currentImgIndex + 1;
+                        document.getElementById("ViolationImageID").src = images[newIndex];
+                        document.getElementById("Confidence").innerText = probabilities[newIndex];
+                        document.getElementById("currentViolationImgsNumber").innerText = newIndex;
+
+                    }
+                }
+                else if(status =="down")
+                {
+                     if(currentImgIndex == 0)
+                    {
+                        document.getElementById("ViolationImageID").src =images[2];
+                        document.getElementById("Confidence").innerText = probabilities[2];
+                    }
+                    else
+                    {
+                        newIndex = currentImgIndex - 1;
+                        document.getElementById("ViolationImageID").src = images[newIndex];
+                        document.getElementById("Confidence").innerText = probabilities[newIndex];
+                        document.getElementById("currentViolationImgsNumber").innerText = newIndex;
+                    }
+                }
+            }
+
+      function addRejection()
+      {
+            var Confirmdata =
+            {
+                selectedTypeId : document.getElementById("ConfirmedTypeList").value,
+                Id: document.getElementById("violationId").textContent,
+            };
+            $.ajax(
+                {
+                    url: '@Url.Content("~/")' + "Violation/RejectViolation",
+                    data: Confirmdata,
+                    type: "POST",
+                    async: false,
+                    success: function (data) 
+                    {
+                        swal("Success Process", 
+                        {
+                            icon: "success",
+                            Text: "Successful Process"
+                        });
+                            var url = '@Url.Content("~/")' + "Home/getPendingViolationsCount";
+                            $.getJSON(url, function (data) 
+                            {
+                                document.getElementById("pendingViolationCountId").innerText = data;
+                            });
+                            var buttonId = document.getElementById("confirmedOrNot").innerText;
+                            if(buttonId != 0)
+                            {
+                               document.getElementById(buttonId).cells[3].innerHTML = "<b style='color:red'>Rejected</b>";
+                            }
+                    },
+                    error: function () 
+                    {
+                        swal("Failed process",
+                            {
+                                icon: "error",
+                            });
+                    }
+
+            });
+            $('#ViolationNotificationModal').modal('toggle');
+      }
+
+      function addNewConfirmation() {
+                var Confirmdata =
+                {
+                    selectedTypeId: document.getElementById("ConfirmedTypeList").value,
+                    Id: document.getElementById("violationId").textContent,
+                };
+                $.ajax(
+                    {
+                        url: '@Url.Content("~/")' + "Violation/AddConfirmationData",
+                        data: Confirmdata,
+                        type: "POST",
+                        async: false,
+                        success: function (data) {
+                            swal("Success Process",
+                                {
+                                    icon: "success",
+                                });
+                            var url = '@Url.Content("~/")' + "Home/getViolationStats";
+                            $.getJSON(url, function (data) {
+                                if (data != null) 
+                                {
+                                   
+                                    document.getElementById("pendingViolationCountId").innerText = data['PendingViolationCount'];
+                                    document.getElementById("thisMonthActualCountId").innerText = data['CurrentMonthActualViolationCount'];
+                                    document.getElementById("totalActualCountId").innerText = data['TotalActualViolationCount'];
+                                    for (var index = 0; index < data["ViolationTypeCounts"].length; index++) 
+                                    {
+                                        document.getElementById(data['ViolationTypeCounts'][index]["ViolationTypeName"]).innerText = data['ViolationTypeCounts'][index]["Count"];
+                                    }
+                                }
+                            });
+                            var buttonId = document.getElementById("confirmedOrNot").innerText;
+                            if (buttonId != 0)
+                            {
+                                document.getElementById(buttonId).cells[3].innerHTML = "<b style='color:green'>Confirmed</b>";
+                            }
+                            document.getElementById("RejectionText").innerText = "No Rejection";
+                        },
+                        error: function () {
+                            swal("Failed process",
+                                {
+                                    icon: "error",
+                                });
+                        }
+
+                    });
+                $('#ViolationNotificationModal').modal('toggle');
+            }
+            </script>
+        </body>
+        @RenderSection("Scripts", required: false)
+    </html>
+    }

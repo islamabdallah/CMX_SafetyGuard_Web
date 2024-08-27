@@ -1,0 +1,96 @@
+﻿@model WebDriverViolation.Services.Models.MasterModels.SearchTruckTrackingModel
+
+@{
+    ViewData["Title"] = "SearchViolation";
+    string checkBoxId = "";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+
+}
+
+
+<div>
+    <div class="card card-default">
+        <!-- /.card-header -->
+        <div class="card-body">
+            <h5 class="card-title">Search Truck status</h5>
+            <form asp-action="SearchTruckTracking">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label> Start</label>
+                            <input class="form-control" asp-for="ToDate" style="width: 100%;" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label> Stop</label>
+                            <input class="form-control" asp-for="FromDate" style="width: 100%;" />
+                        </div>
+                    </div>
+                    <div class="col-md-3 ">
+                        <div class="form-group">
+                            <label>Truck</label>
+                            <select class="form-control select2bs4" style="width: 100%;" asp-for="SelectedTruckID" asp-items="@(new SelectList(Model.Trucks, "Id", "TruckName"))">
+                                <option value="-1" selected="selected"> Select Truck</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <input type="submit" value="Search" class=" btn btn-primary">
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4>Show Truck Status</h4>
+                @if (Model.TruckRunningTrackingAPIModels != null)
+                {
+                    <table id="example1" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Start 
+                                </th>
+                                <th>
+                                    Stop
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <b>Truck #@Model.SelectedTruckID Movement status tracking </b>
+                            </tr>
+                            @if (Model.TruckRunningTrackingAPIModels.Count > 0)
+                            {
+                                @foreach (var item in Model.TruckRunningTrackingAPIModels)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.StartDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.LastStoppedDate)
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <h2>There Is No Trips</h2>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

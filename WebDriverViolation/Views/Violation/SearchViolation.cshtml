@@ -1,0 +1,185 @@
+﻿@model WebDriverViolation.Services.Models.MasterModels.SearchViolationModel
+
+@{
+    ViewData["Title"] = "SearchViolation";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+
+    string checkBoxId = "";
+
+}
+
+<!-- Start datatable css -->
+@* <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.jqueryui.min.css"> *@
+
+  <div class="row">
+                    <!-- data table start -->
+                    <div class="col-12">
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <h4 class="header-title">Search Violations</h4>
+                <form class="needs-validation" novalidate="" asp-action="SearchViolation">
+                    <div class="form-row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label>Truck</label>
+                                <select class="form-control select2bs4" style="width: 100%;" asp-for="SelectedTruckID" asp-items="@(new SelectList(Model.Trucks, "Id", "TruckName"))">
+                                    <option value="-1" selected="selected"> Select Truck</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label>Confirmation Status</label>
+                                <select class="form-control select2bs4" style="width: 100%;" asp-for="SelectedConfirmationStatusId" asp-items="@(new SelectList(Model.ConfirmationStatusModel, "Id", "Name"))">
+                                    <option value="-1" selected="selected"> Select Status</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label>Truck Status</label>
+                                <select class="form-control select2bs4" style="width: 100%;" asp-for="TruckStatusId">
+                                    <option value="0" selected="selected">Moving</option>
+                                    <option value="1">Stopped</option>
+                                    <option value="2">All</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                                    <div class="form-row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="example-datetime-local-input" class="col-form-label">From</label>
+                                            <input class="form-control" type="datetime-local" asp-for="From">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                        <label for="example-datetime-local-input" class="col-form-label">To</label>
+                                        <input class="form-control" type="datetime-local" asp-for="To">
+                                        </div>
+                    </div>
+                        <div class="row mt-3">
+                            <label style="text-decoration:underline">Violation Type</label>
+                        </div>
+                        <div class="row mt-3">
+
+                            @foreach (var type in Model.ViolationTypeModels)
+                            {
+                                checkBoxId = "checkBoxId" + type.ID;
+                                <div class="col-lg-3 custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" id="@checkBoxId" name="SelectedTypes" value="@type.ID">
+                                    <label for="@checkBoxId" class="custom-control-label">@type.Name</label>
+                                </div>
+                            }
+                        </div>
+                    <div class="row mt-3">
+                                    <button class="btn btn-primary" type="submit">Submit form</button>
+                      </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+</div>
+
+    <div class="col-lg-12">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="header-title">Search Violations</h4>
+                <div class="data-tables">
+                @if (Model.ViolationModels != null)
+                {
+                    <table id="dataTable2" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Date
+                                </th>
+                                <th>
+                                    ViolationType
+                                </th>
+                                <th>
+                                   Truck Name
+                                </th>
+                                <th>
+                                    Truck Status
+                                </th>
+                                <th>
+                                    Confirmation Status
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ViolationModels.Count > 0)
+                            {
+                                @foreach (var item in Model.ViolationModels)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Date)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ViolationType.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Truck.TruckName)
+                                        </td>
+                                    <td>
+                                        @if (item.IsTruckMoving == true)
+                                        {
+                                            <span>Moving</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Stopped</span>
+                                        }
+                                    </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ConfirmationStatus.Name)
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" onclick="showViolationDetails(@item.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels))" title="Show Details">
+                                                <i class="fa fa-eye">
+                                                </i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <h2>There Is No Violations</h2>
+                            }
+                        </tbody>
+                    </table>
+                }
+                </div>
+            </div>
+            </div>
+        </div>
+
+<script>
+    // function showViolationDetails(data)
+    // {
+    //     if (data != null) {
+    //     document.getElementById("TruckID").innerText = data["TruckID"];
+    //     document.getElementById("Type").innerText = data["ViolationType"]["Name"];
+    //     document.getElementById("Date").innerText = data["Date"];
+    //     document.getElementById("ViolationImage").innerText = "http://20.86.97.165/take5/images/ViolationImages/" + data["imageName"];
+    //      $('#ViolationNotificationModal').modal('show');
+    //}
+
+    //function test()
+    //{
+    //    alert("testtt");
+    //}
+</script>
+@* <script src="~/Strdash/assets/js/vendor/jquery-2.2.4.min.js"></script>
+<!-- Start datatable js -->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script> *@

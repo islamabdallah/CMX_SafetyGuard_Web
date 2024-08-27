@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDriverViolation", "WebDriverViolation\WebDriverViolation.csproj", "{93A3B6AB-A6D7-41D9-A59C-AD89D985E05D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebDriverViolation.Domain", "WebDriverViolation.Domain", "{00E34D0A-E54C-4C41-8588-275A2964CB5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDriverViolation.Models", "WebDriverViolation.Models\WebDriverViolation.Models.csproj", "{CF44B97C-6BD2-45D3-BDB7-ACA5646F6FAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDriverViolation.Services", "WebDriverViolation.Services\WebDriverViolation.Services.csproj", "{447A531B-3DFC-424D-8BFE-A9DF9767721C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reporistry", "Reporistry", "{5C0F0EDD-A809-4943-BA6C-0AC9B947DCD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Reporistry", "Data.Reporistry\Data.Reporistry.csproj", "{442B9B8F-5DD2-4764-A502-671E86C1D633}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository.EntityFramework", "Repository.EntityFramework\Repository.EntityFramework.csproj", "{096194AC-C437-43C4-949D-EF22F5934FA5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{93A3B6AB-A6D7-41D9-A59C-AD89D985E05D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A3B6AB-A6D7-41D9-A59C-AD89D985E05D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A3B6AB-A6D7-41D9-A59C-AD89D985E05D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A3B6AB-A6D7-41D9-A59C-AD89D985E05D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF44B97C-6BD2-45D3-BDB7-ACA5646F6FAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF44B97C-6BD2-45D3-BDB7-ACA5646F6FAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF44B97C-6BD2-45D3-BDB7-ACA5646F6FAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF44B97C-6BD2-45D3-BDB7-ACA5646F6FAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{447A531B-3DFC-424D-8BFE-A9DF9767721C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{447A531B-3DFC-424D-8BFE-A9DF9767721C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{447A531B-3DFC-424D-8BFE-A9DF9767721C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{447A531B-3DFC-424D-8BFE-A9DF9767721C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{442B9B8F-5DD2-4764-A502-671E86C1D633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{442B9B8F-5DD2-4764-A502-671E86C1D633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{442B9B8F-5DD2-4764-A502-671E86C1D633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{442B9B8F-5DD2-4764-A502-671E86C1D633}.Release|Any CPU.Build.0 = Release|Any CPU
+		{096194AC-C437-43C4-949D-EF22F5934FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{096194AC-C437-43C4-949D-EF22F5934FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{096194AC-C437-43C4-949D-EF22F5934FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{096194AC-C437-43C4-949D-EF22F5934FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CF44B97C-6BD2-45D3-BDB7-ACA5646F6FAF} = {00E34D0A-E54C-4C41-8588-275A2964CB5F}
+		{447A531B-3DFC-424D-8BFE-A9DF9767721C} = {00E34D0A-E54C-4C41-8588-275A2964CB5F}
+		{442B9B8F-5DD2-4764-A502-671E86C1D633} = {5C0F0EDD-A809-4943-BA6C-0AC9B947DCD0}
+		{096194AC-C437-43C4-949D-EF22F5934FA5} = {5C0F0EDD-A809-4943-BA6C-0AC9B947DCD0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {627E22E9-F0AB-4485-866B-5F8BF3768C6F}
+	EndGlobalSection
+EndGlobal

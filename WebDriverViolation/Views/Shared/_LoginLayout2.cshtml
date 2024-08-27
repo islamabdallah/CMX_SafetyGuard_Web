@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Driver Distraction Detection</title>
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
+    <!-- Font Icon -->
+    <link rel="shortcut icon" type="image/png" href="~/Strdash/assets/images/icon/favicon.ico">
+    <link rel="stylesheet" href="~/Strdash/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/themify-icons.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/metisMenu.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/slicknav.min.css">
+    <!-- amchart css -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <!-- others css -->
+    <link rel="stylesheet" href="~/Strdash/assets/css/typography.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/default-css.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/styles.css">
+    <link rel="stylesheet" href="~/Strdash/assets/css/responsive.css">
+    <!-- modernizr css -->
+    <script src="~/Strdash/assets//js/vendor/modernizr-2.8.3.min.js"></script>
+</head>
+<body style="height:auto !important">
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- JS -->
+    <!-- jquery latest version -->
+    <script src="~/Strdash/assets//js/vendor/jquery-2.2.4.min.js"></script>
+    <!-- bootstrap 4 js -->
+    <script src="~/Strdash/assets/js/popper.min.js"></script>
+    <script src="~/Strdash/assets/js/bootstrap.min.js"></script>
+    <script src="~/Strdash/assets/js/owl.carousel.min.js"></script>
+    <script src="~/Strdash/assets/js/metisMenu.min.js"></script>
+    <script src="~/Strdash/assets/js/jquery.slimscroll.min.js"></script>
+    <script src="~/Strdash/assets/js/jquery.slicknav.min.js"></script>
+
+    <!-- others plugins -->
+    <script src="~/Strdash/assets/js/plugins.js"></script>
+    <script src="~/Strdash/assets/js/scripts.js"></script>
+    @RenderSection("Scripts", required: false)
+
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>
