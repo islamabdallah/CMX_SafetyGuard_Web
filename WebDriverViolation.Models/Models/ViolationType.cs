@@ -10,5 +10,6 @@ namespace WebDriverViolation.Models.Models
 
 
         public int MinutesNumberToSendNewMail { get; set; }
+        public string? Category { get; set; }
     }
 }

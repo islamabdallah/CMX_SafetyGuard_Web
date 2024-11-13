@@ -12,15 +12,18 @@ namespace Take5.Services.Implementation.Violations
     {
         private readonly IRepository<TruckRunningTracking, long> _repository;
         private readonly ITruckService _truckService;
+        private readonly IViolationTypeService _violationTypeService;
         private readonly IMapper _mapper;
 
         public TruckRunningTrackingService(IRepository<TruckRunningTracking, long> repository,
             ITruckService truckService,
-            IMapper mapper)
+            IMapper mapper,
+            IViolationTypeService violationTypeService)
         {
             _repository = repository;
             _truckService = truckService;
             _mapper = mapper;
+            _violationTypeService = violationTypeService;
         }
         public Task<bool> CreateTruckRunningTracking(TruckRunningTrackingAPIModel truckRunningTrackingAPIModel)
         {
@@ -59,6 +62,25 @@ namespace Take5.Services.Implementation.Violations
             catch(Exception e)
             {
                 return Task<bool>.FromResult(false);
+            }
+        }
+
+        public CameraTrackingModel InitiateCameraSearchModel(CameraTrackingModel searchViolationModel)
+        {
+            try
+            {
+                searchViolationModel.Trucks = this._truckService.GetAllTrucks().Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category == "camera")).ToList<TruckModel>();
+                if (searchViolationModel.SelectedTruckID == string.Empty)
+                    searchViolationModel.SelectedTruckID = "-1";
+                List<ViolationTypeModel> list =_violationTypeService.GetAllViolationTypes().Result.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category == "camera" || t.Category == "all")).ToList<ViolationTypeModel>();
+                searchViolationModel.ViolationTypeModels = list;
+                if (searchViolationModel.ViolationTypeID == 0)
+                    searchViolationModel.ViolationTypeID = -1;
+                return searchViolationModel;
+            }
+            catch (Exception ex)
+            {
+                return (CameraTrackingModel)null;
             }
         }
 

@@ -29,6 +29,7 @@ namespace WebDriverViolation.Services.Models.MasterModels
 
         [Required]
         public string TruckName { get; set; } = string.Empty;
+        public string? Category { get; set; }
 
     }
 }

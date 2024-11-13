@@ -9,6 +9,7 @@ namespace Take5.Services.Contracts
         Task<bool> CreateTruckRunningTracking(TruckRunningTrackingAPIModel truckRunningTrackingAPIModel);
 
         SearchTruckTrackingModel InitiateTruckTrackingSearchModel(SearchTruckTrackingModel searchTruckTrackingModel);
+        CameraTrackingModel InitiateCameraSearchModel(CameraTrackingModel cameraTrackingModel);
         List<TruckRunningTrackingAPIModel> SearchTruckRunningTracking(SearchTruckTrackingModel searchTruckTrackingModel);
 
 

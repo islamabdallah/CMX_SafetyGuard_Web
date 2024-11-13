@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 using Take5.Models.Models;
 using Take5.Services.Contracts;
 using WebDriverViolation.Models.Models;
@@ -116,7 +118,7 @@ namespace WebDriverViolation.Services.Implementation.Violations
             //this is a simple white background image
             var myfilename = string.Format(@"{0}", Guid.NewGuid());
             //Generate unique filename
-            string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, uploadFolder);
+            string uploadsFolder = Path.Combine(@"C:\inetpub\wwwroot\_driver\wwwroot/", uploadFolder);
             string uniqueFileName = Guid.NewGuid().ToString() + "_" + "violationImg.jpg";
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
             var bytess = Convert.FromBase64String(strm);
@@ -158,6 +160,10 @@ namespace WebDriverViolation.Services.Implementation.Violations
             {
                 if (searchViolationModel != null)
                 {
+                    if(searchViolationModel.To != null)
+                    {
+                        searchViolationModel.To = DateTime.Parse(searchViolationModel.To.ToString()).AddDays(1);
+                    }
                     try
                     {
                         var violations =  _repository.Find(v => v.IsVisible == true, false, t=>t.ViolationType, t=>t.ConfirmationStatus, x=>x.Truck);
@@ -328,6 +334,7 @@ namespace WebDriverViolation.Services.Implementation.Violations
                     Code = model.Code,
                     AllClassessProbability= model.AllClassessProbability,
                     IsTruckMoving = IsTruckMoving,
+                    Category= model.Category,
                 };
                 int mode = 0;
 
@@ -391,7 +398,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
                 return null;
             }
         }
-
         public ViolationModel GetViolation(long violationId)
         {
             try
@@ -413,7 +419,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
             }
 
         }
-
         public async Task<bool> AddViolationConfirmationDetails(int violationConfirmedTypeId, long violationId, string userId)
         {
             try
@@ -451,8 +456,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
             }
 
         }
-
-
         public async Task<Dictionary<string, long>> GetActualViolationCountsperType()
         {
             try
@@ -479,7 +482,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
             }
 
         }
-
         public async Task<long> GetPendingViolationCount()
         {
             try 
@@ -518,7 +520,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
             }
 
         }
-
         public async Task<long> GetAllActualViolationCount()
         {
             try
@@ -531,44 +532,39 @@ namespace WebDriverViolation.Services.Implementation.Violations
                 return 0;
             }
         }
-
         public async Task<List<ViolationModel>> GetAllPendingViolations()
         {
             try
             {
-                List<ViolationModel> violationModels = new List<ViolationModel>();
+                List<ViolationModel> violationModelList = new List<ViolationModel>();
                 List<ViolationModel> uniqueViolationModels = new List<ViolationModel>();
-                List<Violation> pendingViolations = await _repository.Find(v => v.IsVisible == true &&v.IsTruckMoving == true&& v.ConfirmationStatusId == (int)CommanData.ConfirmationStatus.Pending, false,
-                    x => x.ConfirmationStatus, x => x.ViolationType, x=>x.Truck).OrderByDescending(x => x.CreatedDate).Take(100).ToListAsync();
-                if (pendingViolations != null)
+                List<Violation> listAsync = await this._repository.Find((Expression<Func<Violation, bool>>)(v => v.IsVisible == true && v.ConfirmationStatusId == 1), false, (Expression<Func<Violation, object>>)(x => x.ConfirmationStatus), (Expression<Func<Violation, object>>)(x => x.ViolationType), (Expression<Func<Violation, object>>)(x => x.Truck)).OrderByDescending<Violation, DateTime>((Expression<Func<Violation, DateTime>>)(x => x.CreatedDate)).ToListAsync<Violation>();
+                if (listAsync != null)
                 {
-                    violationModels = _mapper.Map<List<ViolationModel>>(pendingViolations);
-                    var violationGroups = violationModels.GroupBy(x => x.Code);
-                    foreach (var violationGroup in violationGroups)
+                    foreach (IGrouping<string, ViolationModel> grouping in this._mapper.Map<List<ViolationModel>>((object)listAsync).GroupBy<ViolationModel, string>((Func<ViolationModel, string>)(x => x.Code)))
                     {
-                        ViolationModel highestViolation = violationGroup.Where(g => g.Probability == violationGroup.Max(g => g.Probability)).FirstOrDefault();
-                        if (highestViolation != null)
+                        IGrouping<string, ViolationModel> violationGroup = grouping;
+                        ViolationModel violationModel = violationGroup.Where<ViolationModel>((Func<ViolationModel, bool>)(g => g.Probability == violationGroup.Max<ViolationModel>((Func<ViolationModel, double>)(g => g.Probability)))).FirstOrDefault<ViolationModel>();
+                        if (violationModel != null)
                         {
-                            var imgs = violationGroup.Select(g => g.imageName).ToList();
-                            if (imgs.Count > 0)
+                            List<string> list = violationGroup.Select<ViolationModel, string>((Func<ViolationModel, string>)(g => g.imageName)).ToList<string>();
+                            if (list.Count > 0)
                             {
-                                highestViolation.images = new List<string>();
-                                highestViolation.images.AddRange(imgs);
+                                violationModel.images = new List<string>();
+                                violationModel.images.AddRange((IEnumerable<string>)list);
                             }
-                            uniqueViolationModels.Add(highestViolation);
-
+                            uniqueViolationModels.Add(violationModel);
                         }
                     }
-                    uniqueViolationModels = uniqueViolationModels.OrderByDescending(x => x.Date).ToList();
+                    uniqueViolationModels = uniqueViolationModels.OrderByDescending<ViolationModel, DateTime>((Func<ViolationModel, DateTime>)(x => x.Date)).ToList<ViolationModel>();
                 }
                 return uniqueViolationModels;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return null;
+                return (List<ViolationModel>)null;
             }
         }
-
         public async Task<long> GetCurrentMonthActualViolationCount()
         {
             try
@@ -581,7 +577,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
                 return 0;
             }
         }
-
         public List<Violation> ConvertFromViolationAPIToViolation(List<ViolationAPIModel> models, string code)
         {
             try
@@ -615,7 +610,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
                 return null;
             }
         }
-
         public async Task<List<ViolationModel>> GetViolationByCode(string code)
         {
             try
@@ -634,7 +628,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
                 return null;
             }
         }
-
         public async Task<ViolationModel> GetLastViolationForSpecificTypeAndTruck(int typeID, string truckID)
         {
             try
@@ -653,8 +646,6 @@ namespace WebDriverViolation.Services.Implementation.Violations
                 return null;
             }
         }
-
-
         public async Task<ViolationModel> GetLastViolationForSpecificTypeAndTruckWithMail(int typeID, string truckID)
         {
             try
@@ -672,6 +663,48 @@ namespace WebDriverViolation.Services.Implementation.Violations
             {
                 return null;
             }
+        }
+        public async Task<string> SaveImagePPE(string strm, string uploadFolder, int index,string name, string CameraName)
+        {
+            //this is a simple white background image
+            string uniqueFileName = null;
+           // string myfilename = null;
+            //Generate unique filename
+            string uploadsFolder = Path.Combine(@"C:\inetpub\wwwroot\_driver\wwwroot/", uploadFolder);
+            // myfilename = DateTime.Now.ToString() + "_PPE"+"_"+index.ToString() + ".jpg";
+            uniqueFileName = name+"_"+DateTime.Now.ToString("yyyy-MM-dd HHmmtt")+"_"+CameraName + "_PPE" + "_" + index.ToString() + ".jpg";
+            uniqueFileName = uniqueFileName.Replace(" ", "");
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            var bytess = Convert.FromBase64String(strm);
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                fileStream.Write(bytess, 0, bytess.Length);
+                fileStream.Flush();
+            }
+
+            return uniqueFileName;
+  
+        }
+
+        public async Task<string> SaveImageDriver(string strm, string uploadFolder, int index, string Namey, string TruckName)
+        {
+            //this is a simple white background image
+            string uniqueFileName = null;
+            // string myfilename = null;
+            //Generate unique filename
+            string uploadsFolder = Path.Combine(@"C:\inetpub\wwwroot\_driver\wwwroot/", uploadFolder);
+            // myfilename = DateTime.Now.ToString() + "_PPE"+"_"+index.ToString() + ".jpg";
+            uniqueFileName = Namey + "_" + DateTime.Now.ToString("yyyy-MM-dd HHmmtt") + "_" + TruckName + "_DV" + "_" + index.ToString() + ".jpg";
+            uniqueFileName = uniqueFileName.Replace(" ", "");
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            var bytess = Convert.FromBase64String(strm);
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                fileStream.Write(bytess, 0, bytess.Length);
+                fileStream.Flush();
+            }
+
+            return uniqueFileName;
         }
     }
 }

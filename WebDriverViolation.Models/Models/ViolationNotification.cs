@@ -8,7 +8,7 @@ using WebDriverViolation.Models.Models.MasterModels;
 
 namespace WebDriverViolation.Models.Models.MasterModels
 {
-    public class ViolationNotification:EntityWithIdentityId<long>
+    public class ViolationNotification : EntityWithIdentityId<long>
     {
 
         [Required]
@@ -20,6 +20,6 @@ namespace WebDriverViolation.Models.Models.MasterModels
         [Required]
         public long ViolationID  { get; set; }
 
-
+        public string? Category { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WebDriverViolation.Models.Models;
@@ -15,13 +16,16 @@ namespace WebDriverViolation.Services.Implementation
     public class TruckService : ITruckService
     {
         private readonly IRepository<Truck, string> _repository;
+        private readonly IRepository<CameraViolation, long> _cvrepository;
         private readonly ILogger<TruckService> _logger;
         private readonly IMapper _mapper;
 
         public TruckService(IRepository<Truck, string> repository,
+            IRepository<CameraViolation, long> cvrepository,
           ILogger<TruckService> logger, IMapper mapper)
         {
             _repository = repository;
+            _cvrepository = cvrepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -135,6 +139,18 @@ namespace WebDriverViolation.Services.Implementation
             return null;
         }
 
+        public bool GetCameraHasViolation(string id, int violationId)
+        {
+            try
+            {
+                return this._cvrepository.Find((Expression<Func<CameraViolation, bool>>)(t => t.IsVisible == true && t.TruckID == id && t.ViolationTypeID == violationId)).FirstOrDefault<CameraViolation>() != null;
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.ToString());
+                return false;
+            }
+        }
 
         public TruckModel GetTruck(string id)
         {

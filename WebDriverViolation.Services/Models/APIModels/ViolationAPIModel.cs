@@ -24,6 +24,7 @@ namespace WebDriverViolation.Services.Models.APIModels
 
         [Required]
         public string AllClassessProbability { get; set; }
+        public string? Category { get; set; }
     }
 
     public class ViolationCollection

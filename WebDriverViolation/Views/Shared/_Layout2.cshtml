@@ -88,7 +88,7 @@
                                                 {
                                                         @foreach (var notification in notifications)
                                                         {
-                                                            <a onclick="showViolationDetails(@notification.ViolationNotification.ViolationID, @JsonSerializer.Serialize(ViolationTypes), 0)" class="notify-item">
+                                                            <a onclick="showViolationDetailsOld(@notification.ViolationNotification.ViolationID, @JsonSerializer.Serialize(ViolationTypes), 0)" class="notify-item">
                                                            @*      <div class="notify-thumb">
                                                                     <img src="~/images/alert.png" alt="alert" />
                                                                 </div> *@
@@ -420,7 +420,7 @@
         document.getElementById("warnTitle").setAttribute("style", "color:black");
     }
 
-      function showViolationDetails(id, TypesList, confirmButtonId)
+      function showViolationDetailsOld(id, TypesList, confirmButtonId)
         {
                 var url = '@Url.Content("~/")' + "Violation/getViolationDetails";
                         $.getJSON(url, { violationId: id }, function (data) 

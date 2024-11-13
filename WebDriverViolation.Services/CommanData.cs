@@ -13,15 +13,22 @@ namespace WebDriverViolation.Services.Models
         public enum ViolationTypes
         {
             Texting = 1,
-            CallingRight = 2,
+            Calling = 2,
             CallingLeft = 3,
             Drinking = 4,
-            GettingBack = 5,
+            Distracted = 5,
             Camera_Cant_Read_ID = 6,
             Camera_Cant_Open_ID = 8,
             Camera_Coverd_ID = 9,
             Sleeping = 7,
             NoViolation = 10,
+            NoHardhat = 11, 
+            NoVest = 12, 
+            NoGloves = 13, 
+            NoMask = 14, 
+            NoGlasses = 15, 
+            Fall_Down = 16, 
+            Forklift = 17,
         };
 
         public enum ConfirmationStatus

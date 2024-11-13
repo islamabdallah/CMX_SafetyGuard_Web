@@ -13,6 +13,7 @@ namespace WebDriverViolation.Services.Contracts
         List<TruckModel> GetAllActiveTrucks(string companyName);
 
         List<TruckModel> GetAllTrucks();
+        bool GetCameraHasViolation(string id, int violationId);
 
         Task<long> GetAllActiveTrucksCount(string companyName);
 

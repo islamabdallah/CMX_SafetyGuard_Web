@@ -44,7 +44,7 @@ namespace WebDriverViolation.Services.Implementation
         }
 
 
-        public async Task<ViolationNotificationModel> CreateViolationNotification(string message, long violationId)
+        public async Task<ViolationNotificationModel> CreateViolationNotification(string message, long violationId, string? category)
         {
             try
             {
@@ -56,6 +56,7 @@ namespace WebDriverViolation.Services.Implementation
                 notification.IsVisible = true;
                 notification.IsDelted = false;
                 notification.ViolationID = violationId;
+                notification.Category = category;
                 ViolationNotification addedNotification = _repository.Add(notification);
                 if(addedNotification != null)
                 {

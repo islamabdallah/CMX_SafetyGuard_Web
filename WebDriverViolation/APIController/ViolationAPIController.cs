@@ -18,6 +18,7 @@ namespace WebDriverViolation.APIController
     {
         private readonly IViolationService _violationService;
         private readonly ITruckRunningTrackingService _truckRunningTrackingService;
+        private readonly ITruckDetailsService _truckDetailsService;
         private readonly IViolationNotificationService _violationNotificationService;
         private readonly IOutlookSenderService _outlookSenderService;
         private readonly ITruckService _truckService;
@@ -26,7 +27,7 @@ namespace WebDriverViolation.APIController
         private readonly IViolationTypeAccuracyLavelService _violationTypeAccuracyLavelService;
 
         public ViolationAPIController(IViolationService violationService,
-             ITruckRunningTrackingService truckRunningTrackingService,
+             ITruckRunningTrackingService truckRunningTrackingService,ITruckDetailsService truckDetailsService,
              IViolationNotificationService violationNotificationService,
              IOutlookSenderService outlookSenderService,
             ITruckService truckService,
@@ -41,11 +42,12 @@ namespace WebDriverViolation.APIController
             _truckService= truckService;
             _objectMappingService= objectMappingService;
             _violationTypeAccuracyLavelService = violationTypeAccuracyLavelService;
+            _truckDetailsService=truckDetailsService;
         }
 
         // POST api/<ViolationAPIController>
-        [HttpPost("AddViolation")]
-        public async Task<ActionResult> AddViolation(List<ViolationCollection> violationCollections)
+        [HttpPost("AddViolationOld")]
+        public async Task<ActionResult> AddViolationOld(List<ViolationCollection> violationCollections)
         {
             bool result = false;
             string imageName = "";
@@ -232,7 +234,7 @@ namespace WebDriverViolation.APIController
                                     //    addedViolationModel.Date + "&&&  , Average Probability = " +
                                     //    addedViolationModel.AverageProbability  + "&&& , Violation Level = " + violationTypeAccuracyLavel.Description.ToString();
                                     //}
-                                    var addedViolationNotification = _violationNotificationService.CreateViolationNotification(notificationMessage, addedViolationModel.Id).Result;
+                                    var addedViolationNotification = _violationNotificationService.CreateViolationNotification(notificationMessage, addedViolationModel.Id,null).Result;
                                     if (addedViolationNotification != null)
                                     {
                                         result = _violationNotificationService.HandleViolationNotificationToRole(notificationMessage, addedViolationNotification.Id, "Supervisor", "Security").Result;
@@ -331,8 +333,8 @@ namespace WebDriverViolation.APIController
             }
            
 
-        [HttpPost("AddTruckStatus")]
-        public async Task<ActionResult> AddTruckStatus(List<TruckRunningTrackingAPIModel> truckRunningTrackingAPIModels)
+        [HttpPost("AddTruckStatusOld")]
+        public async Task<ActionResult> AddTruckStatusOld(List<TruckRunningTrackingAPIModel> truckRunningTrackingAPIModels)
         {
             bool result = false;
             bool validationResult = false;
@@ -378,6 +380,434 @@ namespace WebDriverViolation.APIController
             {
                 return BadRequest(new { Message = "can not accept empty object", Data = false });
             }
+        }
+
+        [HttpPost("AddViolation")]
+        public async Task<ActionResult> AddViolation(List<ViolationCollection> violationCollections)
+        {
+            ViolationAPIController violationApiController = this;
+            bool result = false;
+            string violationType = "";
+            bool flag1 = true;
+            double ViolationsTime = 0.0;
+            double minutesDfiffForPreviousWithSendMail = 0.0;
+            double AverageProbability = 0.0;
+            string name = "";
+            if (violationCollections == null)
+                return (ActionResult)violationApiController.BadRequest((object)new
+                {
+                    Message = "Failed Process, invaild data",
+                    Data = false
+                });
+            foreach (ViolationCollection violationAPIModels in violationCollections)
+            {
+                TruckModel truck = violationApiController._truckService.GetTruck(violationAPIModels.TruckID);
+                ViolationsTime = Math.Abs(Math.Round(violationAPIModels.TotalTime, 2, MidpointRounding.AwayFromZero));
+                violationType = Enum.GetName(typeof(CommanData.ViolationTypes), (object)violationAPIModels.TypeID);
+                string result1 = violationApiController._violationService.GetLastViolationCodeForToday().Result;
+                string code;
+                DateTime date;
+                if (result1 != "" && result1 != null)
+                {
+                    int num = Convert.ToInt32(result1.Substring(8)) + 1;
+                    date = DateTime.Now.Date;
+                    code = date.ToString("yyyyMMdd") + num.ToString();
+                }
+                else
+                {
+                    DateTime dateTime = DateTime.Now;
+                    dateTime = dateTime.Date;
+                    code = dateTime.ToString("yyyyMMdd") + "1";
+                }
+                List<Violation> newViolations = new List<Violation>();
+                if (violationAPIModels == null)
+                    return (ActionResult)violationApiController.BadRequest((object)new
+                    {
+                        Message = "Failed Process, invaild data",
+                        Data = false
+                    });
+                if (violationAPIModels.ViolationAPIModels.Count != CommanData.numberofInstancesPerViolation && violationAPIModels.TypeID != 9 && violationAPIModels.TypeID != 8 && violationAPIModels.TypeID != 6)
+                    return (ActionResult)violationApiController.BadRequest((object)new
+                    {
+                        Message = "Failed Process, invaild data",
+                        Data = false
+                    });
+                if (truck == null)
+                    return (ActionResult)violationApiController.BadRequest((object)new
+                    {
+                        Message = "Failed Process, invaild truck number",
+                        Data = false
+                    });
+                ViolationModel lastPreviousAddedViolation = await violationApiController._violationService.GetLastViolationForSpecificTypeAndTruck(violationAPIModels.TypeID, violationAPIModels.TruckID);
+                ViolationModel andTruckWithMail = await violationApiController._violationService.GetLastViolationForSpecificTypeAndTruckWithMail(violationAPIModels.TypeID, violationAPIModels.TruckID);
+                int mode = !violationAPIModels.ModeLight ? 2 : 1;
+                ViolationTypeAccuracyLavel typeAccuracyLavel;
+                if (violationAPIModels.ViolationAPIModels.Count > 1)
+                {
+                    AverageProbability = violationAPIModels.AverageProbability;
+                    typeAccuracyLavel = violationApiController._violationTypeAccuracyLavelService.GetViolationAccuracyLavelForViolation(violationAPIModels.TypeID, AverageProbability, violationAPIModels.ViolationAPIModels[1].Date, mode);
+                }
+                else
+                    typeAccuracyLavel = (ViolationTypeAccuracyLavel)null;
+                int num1;
+                double num2;
+                string str1;
+                if (typeAccuracyLavel != null)
+                {
+                    if (typeAccuracyLavel.SendMail)
+                    {
+                        flag1 = true;
+                        num1 = 1;
+                    }
+                    else
+                    {
+                        flag1 = false;
+                        num1 = 2;
+                    }
+                    string[] strArray = new string[11];
+                    strArray[0] = violationType;
+                    strArray[1] = " Violation for ";
+                    strArray[2] = truck.TruckName;
+                    strArray[3] = " at ";
+                    date = violationAPIModels.ViolationAPIModels[0].Date;
+                    strArray[4] = date.ToString();
+                    strArray[5] = "&&&  , Average Probability = ";
+                    num2 = Math.Round(AverageProbability, 2, MidpointRounding.AwayFromZero);
+                    strArray[6] = num2.ToString();
+                    strArray[7] = "  time for 5 frames = ";
+                    strArray[8] = ViolationsTime.ToString();
+                    strArray[9] = "&&& , Violation Level = ";
+                    strArray[10] = typeAccuracyLavel.Description.ToString();
+                    str1 = string.Concat(strArray);
+                }
+                else
+                {
+                    flag1 = false;
+                    num1 = 2;
+                    string[] strArray = new string[9];
+                    strArray[0] = violationType;
+                    strArray[1] = " Violation for ";
+                    strArray[2] = truck.TruckName;
+                    strArray[3] = " at ";
+                    date = violationAPIModels.ViolationAPIModels[0].Date;
+                    strArray[4] = date.ToString();
+                    strArray[5] = "&&&  , Average Probability = ";
+                    num2 = Math.Round(AverageProbability, 2, MidpointRounding.AwayFromZero);
+                    strArray[6] = num2.ToString();
+                    strArray[7] = "  time for 5 frames = ";
+                    strArray[8] = ViolationsTime.ToString();
+                    str1 = string.Concat(strArray);
+                }
+                bool flag2;
+                if (lastPreviousAddedViolation != null)
+                {
+                    double num3;
+                    if (violationAPIModels.ViolationAPIModels.Count > 1)
+                    {
+                        if (andTruckWithMail != null)
+                        {
+                            date = violationAPIModels.ViolationAPIModels[2].Date;
+                            TimeSpan timeSpan = date.Subtract(lastPreviousAddedViolation.Date);
+                            num3 = Math.Abs(timeSpan.TotalSeconds);
+                            date = violationAPIModels.ViolationAPIModels[2].Date;
+                            timeSpan = date.Subtract(andTruckWithMail.Date);
+                            minutesDfiffForPreviousWithSendMail = Math.Abs(timeSpan.TotalSeconds);
+                        }
+                        else
+                        {
+                            num3 = 0.0;
+                            minutesDfiffForPreviousWithSendMail = 0.0;
+                        }
+                    }
+                    else
+                        num3 = 100.0;
+                    if (num1 == 1)
+                    {
+                        flag2 = lastPreviousAddedViolation.ViolationTypeID == 7 && num3 <= 60.0 && minutesDfiffForPreviousWithSendMail > 300.0 || num3 <= 180.0 && lastPreviousAddedViolation.ViolationTypeID != 7 || true;
+                    }
+                    else
+                    {
+                        flag2 = false;
+                        num1 = 0;
+                    }
+                }
+                else
+                {
+                    flag2 = false;
+                    num1 = 0;
+                }
+                int lmIndex = 0;
+                foreach (ViolationAPIModel violationApiModel in violationAPIModels.ViolationAPIModels)
+                {
+                    if (true)
+                    {
+                        if (violationApiModel.image != null)
+                        {
+                            lmIndex++;
+                            string result2 = violationApiController._violationService.SaveImageDriver(violationApiModel.image, CommanData.ViolationFolder, lmIndex, violationType, violationAPIModels.TruckID).Result;
+                           // string result2 = violationApiController._violationService.SaveImage(violationApiModel.image, CommanData.ViolationFolder).Result;
+                            violationApiModel.image = result2;
+                        }
+                        else
+                            violationApiModel.image = "test.jpg";
+                    }
+                    violationApiModel.Code = code;
+                    violationApiModel.Category = "Driver";
+                    Violation violation = violationApiController._violationService.ConvertFromViolationAPIToViolation(violationApiModel, violationAPIModels.TypeID, violationAPIModels.AverageProbability, violationAPIModels.TruckID, violationAPIModels.TotalTime, violationAPIModels.ModeMoving, violationAPIModels.ModeLight);
+                    if (violation != null)
+                    {
+                        violation.MailSent = num1;
+                        newViolations.Add(violation);
+                    }
+                }
+                List<ViolationModel> result3 = violationApiController._violationService.CreateViolation(newViolations).Result;
+                if (result3 == null)
+                    return (ActionResult)violationApiController.BadRequest((object)new
+                    {
+                        Message = "Failed Process",
+                        Data = false
+                    });
+                ViolationModel violationModel = result3.OrderBy<ViolationModel, double>((Func<ViolationModel, double>)(v => v.Probability)).Last<ViolationModel>();
+                ViolationNotificationModel result4 = _violationNotificationService.CreateViolationNotification(str1, violationModel.Id, (string)null).Result;
+                if (result4 != null)
+                {
+                    result = violationApiController._violationNotificationService.HandleViolationNotificationToRole(str1, result4.Id, "Supervisor", "Security").Result;
+                    bool result5 = violationApiController._violationNotificationService.PushRealTimeViolationNotificationToRole(result4, "Supervisor", "Security", violationModel).Result;
+                }
+                List<string> list = ((IEnumerable<string>)truck.MailList.Split(";")).ToList<string>();
+                if (flag2 && list != null && list.Count > 0)
+                {
+                    string str2 = (!violationModel.IsTruckMoving ? str1 + " , IsTruckMoving= false" : str1 + " , IsTruckMoving= true") + " ,Mode= " + mode.ToString();
+                    num2 = violationModel.TotalTime;
+                    string str3 = num2.ToString();
+                    string violationMessage = str2 + " ,Total Time= " + str3;
+                    string body = violationApiController._outlookSenderService.PrapareMailBody(violationModel, violationMessage);
+                    List<string> toMails = new List<string>()
+          {
+            "mahmoud.saleh@ext.cemex.com",
+            "eman.rasmy @cemex.com",
+            "ahmedabdel.wahab@cemex.com",
+            "amralaaeldin.saleh@ext.cemex.com"
+          };
+                    if(violationAPIModels.TypeID == 7)
+                    {
+                        //toMails.Add("lamia.mousa@ext.cemex.com");
+                        toMails.Add("islammohamed.abdallah@cemex.com");
+                    }
+                    await violationApiController._outlookSenderService.SendEmail(body, toMails, " Driving Violation Alert | " + violationType);
+                }
+                lastPreviousAddedViolation = (ViolationModel)null;
+                truck = (TruckModel)null;
+                newViolations = (List<Violation>)null;
+            }
+            return !result ? (ActionResult)violationApiController.BadRequest((object)new
+            {
+                Message = "Failed Process",
+                Data = false
+            }) : (ActionResult)violationApiController.Ok((object)new
+            {
+                Message = "Successful process",
+                Data = true
+            });
+        }
+
+        [HttpPost("AddPPEViolation")]
+        public async Task<ActionResult> AddPPEViolation(PPsViolationAPIModel violation)
+        {
+            ViolationAPIController violationApiController = this;
+            if (violation == null)
+                return (ActionResult)violationApiController.BadRequest((object)new
+                {
+                    Message = "Failed Process,Invalid Violation Data",
+                    Data = false
+                });
+            TruckModel truck = violationApiController._truckService.GetTruck(violation.camera_name);
+            if (truck == null)
+                return (ActionResult)violationApiController.BadRequest((object)new
+                {
+                    Message = "Failed Process,Invalid Camera Data",
+                    Data = false
+                });
+            if (!violationApiController._truckService.GetCameraHasViolation(violation.camera_name, violation.violType))
+                return (ActionResult)violationApiController.Ok((object)new
+                {
+                    Message = "Successful process",
+                    Data = truck
+                });
+            string name = Enum.GetName(typeof(CommanData.ViolationTypes), (object)violation.violType);
+            string result1 = violationApiController._violationService.GetLastViolationCodeForToday().Result;
+            string str1;
+            DateTime dateTime1;
+            if (result1 != "" && result1 != null)
+            {
+                int num = Convert.ToInt32(result1.Substring(8)) + 1;
+                DateTime dateTime2 = DateTime.Now;
+                dateTime2 = dateTime2.Date;
+                str1 = dateTime2.ToString("yyyyMMdd") + num.ToString();
+            }
+            else
+            {
+                dateTime1 = DateTime.Now;
+                dateTime1 = dateTime1.Date;
+                str1 = dateTime1.ToString("yyyyMMdd") + "1";
+            }
+            List<Violation> models = new List<Violation>();
+            ViolationAPIModel model = new ViolationAPIModel();
+            model.Probability = violation.AvgProp;
+            model.Code = str1;
+            model.Date = violation.time;
+            model.AllClassessProbability = "";
+            model.Category = "camera";
+            if (violation.image != null && violation.image.Count > 0)
+            {
+                int lmIndex = 0;
+                foreach (string strm in violation.image)
+                {
+                    lmIndex++;
+                    string result2 = violationApiController._violationService.SaveImagePPE(strm, CommanData.ViolationFolder,lmIndex,name,violation.camera_name).Result;
+                    //                    string result2 = violationApiController._violationService.SaveImage(strm, CommanData.ViolationFolder).Result;
+                    model.image = result2;
+                    Violation violation1 = violationApiController._violationService.ConvertFromViolationAPIToViolation(model, violation.violType, violation.AvgProp, violation.camera_name, 0.0, false, false);
+                    if (violation1 != null)
+                    {
+                        violation1.MailSent = 1;
+                        models.Add(violation1);
+                    }
+                }
+            }
+            else
+            {
+                model.image = "test.jpg";
+                Violation violation2 = violationApiController._violationService.ConvertFromViolationAPIToViolation(model, violation.violType, violation.AvgProp, violation.camera_name, 0.0, false, false);
+                if (violation2 != null)
+                {
+                    violation2.MailSent = 1;
+                    models.Add(violation2);
+                }
+            }
+            List<ViolationModel> addedViolationModels = violationApiController._violationService.CreateViolation(models).Result;
+            if (addedViolationModels == null)
+                return (ActionResult)violationApiController.BadRequest((object)new
+                {
+                    Message = "Failed Process,Invalid adding violation Data",
+                    Data = false
+                });
+            ViolationModel violationModel = addedViolationModels.FirstOrDefault<ViolationModel>();
+            string[] strArray = new string[7]
+            {
+        name,
+        " Violation for ",
+        truck.TruckName,
+        " at ",
+        null,
+        null,
+        null
+            };
+            dateTime1 = violation.time;
+            strArray[4] = dateTime1.ToString();
+            strArray[5] = "&&&  , Average Probability = ";
+            strArray[6] = Math.Round(violation.AvgProp, 2, MidpointRounding.AwayFromZero).ToString();
+            string str2 = string.Concat(strArray);
+            ViolationNotificationModel result3 = violationApiController._violationNotificationService.CreateViolationNotification(str2, violationModel.Id, "camera").Result;
+            if (result3 != null)
+            {
+                bool result4 = violationApiController._violationNotificationService.HandleViolationNotificationToRole(str2, result3.Id, "Supervisor", "Security").Result;
+                bool result5 = violationApiController._violationNotificationService.PushRealTimeViolationNotificationToRole(result3, "Supervisor", "Security", violationModel).Result;
+            }
+            List<string> list = ((IEnumerable<string>)truck.MailList.Split(";")).ToList<string>();
+            if (list != null && list.Count > 0 && violation.AvgProp >= 0.7)
+            {
+                string body = violationApiController._outlookSenderService.PrapareMailBody(violationModel, str2);
+                List<string> toMails = new List<string>()
+        {
+          "mahmoud.saleh@ext.cemex.com",
+         // "eman.rasmy @cemex.com",
+          "amralaaeldin.saleh@ext.cemex.com"
+         // "lamia.mousa@ext.cemex.com"
+        };
+               // await violationApiController._outlookSenderService.SendEmail(body, toMails, " PPEs Violation Alert | " + name);
+            }
+            return (ActionResult)violationApiController.Ok((object)new
+            {
+                Message = "Successful process",
+                Data = addedViolationModels
+            });
+        }
+
+        [HttpPost("AddTruckStatus")]
+        public async Task<ActionResult> AddTruckStatus(
+          List<TruckRunningTrackingAPIModel> truckRunningTrackingAPIModels)
+        {
+            ViolationAPIController violationApiController = this;
+            bool flag = false;
+            if (truckRunningTrackingAPIModels == null)
+                return (ActionResult)violationApiController.BadRequest((object)new
+                {
+                    Message = "can not accept empty object",
+                    Data = false
+                });
+            if (truckRunningTrackingAPIModels.Count > 0)
+            {
+                if (violationApiController._truckService.GetTruck(truckRunningTrackingAPIModels[0].TruckID) != null)
+                {
+                    foreach (TruckRunningTrackingAPIModel trackingApiModel in truckRunningTrackingAPIModels)
+                        flag = violationApiController._objectMappingService.ValidateObjectProperities((object)trackingApiModel) && violationApiController._truckRunningTrackingService.CreateTruckRunningTracking(trackingApiModel).Result;
+                }
+                else
+                    flag = false;
+            }
+            else
+                flag = false;
+            return !flag ? (ActionResult)violationApiController.BadRequest((object)new
+            {
+                Message = "Failed Process",
+                Data = false
+            }) : (ActionResult)violationApiController.Ok((object)new
+            {
+                Message = "Successful process",
+                Data = true
+            });
+        }
+
+        [HttpGet("test")]
+        public ActionResult Test()
+        {
+            return (ActionResult)this.Ok((object)new
+            {
+                Message = "Done",
+                Data = "heellllllllllllllllllllllllllllllo"
+            });
+        }
+
+        [HttpPost("AddTruckDetails")]
+        public async Task<ActionResult> AddTruckDetails(TruckDetailsApiModel truckApiModel)
+        {
+            //ViolationAPIController violationApiController = this;
+            bool flag = false;
+            if (truckApiModel == null)
+                return (ActionResult)BadRequest((object)new
+                {
+                    Message = "can not accept empty object",
+                    Data = false
+                });
+           
+                if (_truckService.GetTruck(truckApiModel.TruckId) != null)
+                {
+                        flag = _truckDetailsService.CreateTruckDetails(truckApiModel).Result;
+                }
+                else
+                    flag = false;
+            
+            
+            return !flag ? BadRequest(new
+            {
+                Message = "Failed Process",
+                Data = false
+            }) : Ok(new
+            {
+                Message = "Successful process",
+                Data = true
+            });
         }
     }
 }

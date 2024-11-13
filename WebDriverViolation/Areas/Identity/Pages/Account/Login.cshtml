@@ -3,41 +3,86 @@
 
 @{
     ViewData["Title"] = "Log in";
-    Layout = "_LoginLayout2";
+    Layout = "_LoginLayout";
+   // Layout = "_LoginLayout2";
 }
 
-<div class="login-area">
+<section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
     <div class="container">
-        <div class="login-box ptb--100">
-            <form method="post">
-                <div class="login-form-head">
-          @*           <h4>Login</h4> *@
-                    <h4>Driver Violation</h4>
-                </div>
-                <div class="login-form-body">
-                    <div class="form-gp">
-                        <div for="exampleInputName1" class="mb-2">Employee Number</div>
-                        <input type="text"  asp-for="Input.EmployeeNumber" id="exampleInputName1" class="p-3"/>
-                            <span asp-validation-for="Input.EmployeeNumber" class="text-danger"></span>
-                            <i class="ti-user p-2"></i>
-                            <div class="text-danger"></div>
-                    </div>
-                    <div class="form-gp">
-                        <div for="exampleInputName1" class="mb-2">Password</div>
-                        <input type="password"  asp-for="Input.Password" id="exampleInputPassword1" class="p-3" />
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                        <i class="ti-lock p-2"></i>
-                        <div class="text-danger"></div>
-                    </div>
-                    <div class="submit-btn-area">
-                        <button id="form_submit" type="submit">Submit <i class="ti-arrow-right"></i></button>
-                    </div>
-                    
-                </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+                <div class="d-flex justify-content-center py-4">
+                    <a href="index.html" class="logo d-flex align-items-center w-auto">
+                        <span class="d-none d-lg-block">SafetyGuard AI</span>
+                    </a>
+                </div><!-- End Logo -->
+
+                <div class="card mb-3">
+
+                    <div class="card-body">
+
+                        <div class="pt-4 pb-2">
+                            <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
+                            <p class="text-center small">Enter your number & password to login</p>
+                        </div>
+                        <form method="post" class="row g-3 needs-validation">
+
+                            
+                                <div class="col-12">
+                                    <label for="exampleInputName1" class="form-label">Employee Number</label>
+                                    <div class="input-group has-validation">
+                                    <span class="input-group-text" id="inputGroupPrepend"> <i class="ti-user p-2"></i></span>
+                                    <input type="text" asp-for="Input.EmployeeNumber" id="exampleInputName1" class="form-control" />
+                                    <span asp-validation-for="Input.EmployeeNumber" class="text-danger field-validation-valid"></span>
+                                       
+                                        <div class="text-danger"></div>
+                                    <div class="invalid-feedback">Please enter your employee number.</div>
+                                     </div>
+                                </div>
+
+                            <div class="col-12">
+                                <label for="exampleInputName1" class="form-label">Password</label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text" id="inputGroupPrepend">                                             <i class="ti-lock p-2"></i></i></span>
+                                    <input type="password" asp-for="Input.Password" id="exampleInputPassword1" class="form-control" />
+                                    <span asp-validation-for="Input.Password" class="text-danger field-validation-valid"></span>
+                        
+                                        <div class="text-danger"></div>
+                                        <div class="invalid-feedback">Please enter your password!</div>
+                               </div>
+                           </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button id="form_submit" type="submit" class="btn btn-primary w-100">Submit <i class="ti-arrow-right"></i></button>
+                            </div>
+
+                            <div class="col-12">
+                                <p class="small mb-0">Don't have account? <a href="">Contact Administrator</a></p>
+                            </div>
             </form>
+                    </div>
+                </div>
+
+                <div class="credits">
+                    Copyright © <script>
+                                    document.write(new Date().getFullYear())
+                    </script> CEMEX Innovation Holding Ltd., Switzerland, All Rights Reserved
+                </div>
+
+            </div>
+           
         </div>
     </div>
-</div>
+
+</section>
 
 
 
@@ -47,7 +92,7 @@
 
 
 
-<section class="sign-in" style="margin-top:50px">
+@* <section class="sign-in" style="margin-top:50px">
     <div class="container">
         <div class="signin-content">
             <div class="signin-image">
@@ -79,7 +124,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> *@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

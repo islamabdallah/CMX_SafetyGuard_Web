@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Data.Repository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.Design;
 using WebDriverViolation.Models.Models;
@@ -16,15 +17,18 @@ namespace WebDriverViolation.Services.Implementation
         private readonly UserManager<AspNetUser> _userManager;
 
         private readonly IRepository<UserViolationNotification, long> _repository;
+        private readonly IRepository<Violation, long> _vrepository;
         private readonly ILogger<UserViolationNotificationService> _logger;
         private readonly IMapper _mapper;
 
         public UserViolationNotificationService(IRepository<UserViolationNotification, long> repository,
+            IRepository<Violation, long> vrepository,
             ILogger<UserViolationNotificationService> logger,
             IMapper mapper,
             UserManager<AspNetUser> userManager)
         {
             _repository = repository;
+            _vrepository = vrepository;
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
@@ -104,7 +108,7 @@ namespace WebDriverViolation.Services.Implementation
             try
             {
                 List<UserViolationNotificationModel> userNotificationModels = new List<UserViolationNotificationModel>();
-                List<UserViolationNotification> userNotifications = _repository.Find(UN => UN.userId == userId && UN.IsVisible == true, false, UN => UN.ViolationNotification.Violation, UN => UN.ViolationNotification.Violation.ViolationType).ToList();
+                List<UserViolationNotification> userNotifications = _repository.Find(UN => UN.userId == userId && UN.IsVisible == true && UN.Seen == false, false, UN => UN.ViolationNotification.Violation, UN => UN.ViolationNotification.Violation.ViolationType).ToList();
                 if (userNotifications.Count > 0)
                 {
                     userNotificationModels = _mapper.Map<List<UserViolationNotificationModel>>(userNotifications);

@@ -1,0 +1,222 @@
+﻿ @model WebDriverViolation.Services.Models.MasterModels.CameraTrackingModel
+@{
+    ViewData["Title"] = "SearchViolation";
+    string checkBoxId = "";
+    Layout = "~/Views/Shared/_NiceLayout.cshtml";
+
+}
+<div class="modal fade" id="lmAdd" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="lmAddd">Add New Camera</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="clearElements()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-body pt-3">
+                                <div class="row pt-1">
+                                    <div class="col-lg-6 mb-1">
+                                        <h6>Camera Name </h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-1">
+                                        <input class="form-control select2bs4" style="width: 100%;" id="lmCid" />
+                                       
+                                    </div>
+                                </div>
+
+
+                                <div class="row pt-1" id="NeedConfirmation">
+                                    <div class="col-lg-6 mb-1">
+                                        <h6>Camera Ip </h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-1">
+                                        <input class="form-control select2bs4" style="width: 100%;" id="lmCip" />
+                                       
+                                    </div>
+
+                                </div>
+                              
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveCamera(@JsonSerializer.Serialize(Model.ViolationTypeModels))">Save Camera</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="pagetitle">
+    <h1>CameraTracking</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/SearchViolation">CameraTracking</a></li>
+            <li class="breadcrumb-item active">Camera</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <h5 class="card-title">Search Camera</h5>
+                    <div class="row mt-3">
+
+
+                        <div class="col-md-12 ">
+                            <div class="form-group">
+                                <input type="text" value="@Model.ViolationTypeID" hidden/>
+                                <label class="form-label">Camera Name</label>
+                                <select class="form-select" id="lmcamera" style="width: 100%;" name="SelectedTruckID" asp-for="SelectedTruckID" onchange="getcameradetails(@JsonSerializer.Serialize(Model.ViolationTypeModels))" asp-items="@(new SelectList(Model.Trucks, "Id", "TruckName"))">
+                                    <option value="-1" selected="selected"> Select Camera</option>
+                                </select>
+                                
+                            </div>
+                        </div>
+
+                    
+
+                    </div>
+
+                    <div class="row mt-3">
+
+
+                        <div class="col-12">
+                            <button class="btn btn-primary" onclick="addCamera()">Add New Camera</button>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <h5 class="card-title">Camera Violations status</h5>
+                    <form class="row g-3 needs-validation" novalidate action="CameraTracking" method="post">
+                        <input type="hidden" id="trucklm" data-val="true" data-val-required="The SelectedTruckID field is required." name="SelectedTruckID" value="" />
+                        <div class="row mt-3">
+                            @foreach (var item in Model.ViolationTypeModels)
+                            {
+                                checkBoxId= "checkBoxIdlm" + item.ID;
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        @if (Model.SelectedTypes!=null && Model.SelectedTypes.Contains(item.ID))
+                                        {
+                                            <input class="form-check-input" type="checkbox" id="@checkBoxId" name="SelectedTypes" value="@item.ID" checked>
+                                            <label for="@checkBoxId" class="form-check-label" for="invalidCheck">
+                                                @item.Name
+                                            </label>
+                                        }
+                                        else{
+                                            <input class="form-check-input" type="checkbox" id="@checkBoxId" name="SelectedTypes" value="@item.ID">
+                                            <label for="@checkBoxId" class="form-check-label" for="invalidCheck">
+                                                @item.Name
+                                            </label>
+                                        }
+                                       
+                                        
+
+                                    </div>
+                                </div>
+                            }
+                          
+                          
+                        </div>
+
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</section>
+
+<script> 
+    function addCamera() {
+        $('#lmAdd').modal('show');
+    }
+</script>
+<script>
+    function saveCamera(TypesList) {
+        var x = document.getElementById("lmCid").value;
+        var y = document.getElementById("lmCip").value;
+        alert(x);
+        alert(y);
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Content("~/")' + "TruckTracking/addCamera", // we are calling json method
+            dataType: 'json',
+            data: { id: x, ip:y },
+            success: function (states) {
+                // $("#lmtest").append('<option value="' + "0" + '">' + "Select Benefit" + '</option>');
+                document.getElementById("trucklm").value = $("#lmcamera").val();
+                if (TypesList.length > 0) {
+                    for (var index = 0; index < TypesList.length; index++) {
+                        var numm = parseInt(TypesList[index].ID)
+                        //  alert(num);
+                        document.getElementById("checkBoxIdlm" + numm).checked = false;
+                    }
+                }
+
+            },
+            error: function (ex) {
+                alert('Failed to retrieve states.' + ex);
+            }
+        });
+    }
+</script>
+<script>
+    function getcameradetails(TypesList) {
+        //alert(TypesList[0].ID);
+        //alert("done");
+        var x = document.getElementById("lmcamera").value;
+        //alert(x);
+        if (TypesList.length > 0) {
+            for (var index = 0; index < TypesList.length; index++) {
+                var numm = parseInt(TypesList[index].ID)
+                //  alert(num);
+                document.getElementById("checkBoxIdlm" + numm).checked = false;
+            }
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Content("~/")' + "TruckTracking/GetCameraViolations", // we are calling json method
+            dataType: 'json',
+            data: { id: $("#lmcamera").val() },
+            success: function (states) {
+                // $("#lmtest").append('<option value="' + "0" + '">' + "Select Benefit" + '</option>');
+                document.getElementById("trucklm").value = $("#lmcamera").val();
+                $.each(states, function (i, state) {
+                    var num = parseInt(state.ViolationTypeID);
+                    document.getElementById("checkBoxIdlm" + num).checked = true;
+                });
+
+            },
+            error: function (ex) {
+                alert('Failed to retrieve states.' + ex);
+            }
+        });
+
+    }
+</script>

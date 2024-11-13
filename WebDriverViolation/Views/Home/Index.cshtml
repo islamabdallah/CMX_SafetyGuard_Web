@@ -1,176 +1,156 @@
 ﻿@model WebDriverViolation.Services.Models.SpecificModel.DashBoardModel
 @{
-    string confirmButtonId = "confirmButton";
-    Layout = "~/Views/Shared/_Layout2.cshtml";
+    string confirmButtonId = "tmconfirmButton";
+    Layout = "~/Views/Shared/_NiceLayout.cshtml";
 }
-    
 
-<div class="row">
-    <!-- seo fact area start -->
-    <div class="col-lg-12">
-        <div class="row">
-            <div class="col-md-3 mt-5 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg4">
-                        <div class="p-3 d-flex justify-content-between align-items-center">
-                            <div class="seofct-icon">Pending</div>
-                            <h5 id="pendingViolationCountId">
-                                @Model.PendingViolationCount
-                            </h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mt-md-5 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg2">
-                        <div class="p-3 d-flex justify-content-between align-items-center">
-                            <div class="seofct-icon"> Actual(@DateTime.Today.ToString("MMMM"))</div>
-                            <h5 id="thisMonthActualCountId">@Model.CurrentMonthActualViolationCount</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mt-5 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg3">
-                        <div class="p-3 d-flex justify-content-between align-items-center">
-                            <div class="seofct-icon"> Total Actual</div>
-                            <h5 id="totalActualCountId">@Model.TotalActualViolationCount</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mt-md-5 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg2">
-                        <div class="p-3 d-flex justify-content-between align-items-center">
-                            <div class="seofct-icon">Trucks Count</div>
-                            <h5>@Model.TotalTrucksCount</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12 mt-3">
-        <div class="row">
+<div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/Index">Home</a></li>
+            <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+<section class="section dashboard">
+    <div class="row">
+        <!-- Left side columns -->
+        <div class="col-lg-12">
+            <div class="row">
+                <!-- Sales Card -->
+                <div class="col-xxl-4 col-md-4 h-100">
+                    <div class="card info-card sales-card">
 
-            <!-- trading history area start -->
-            <div class="col-lg-8 mt-sm-30 mt-xs-30">
-                <div class="card">
-                    <div class="card-body">
-                        @if (Model.LatestPendingViolationModels.Count > 0)
-                        {
-                            <div class="d-sm-flex justify-content-between align-items-center">
-                                <h4 class="header-title">
-                                    Pending Violation
-                                </h4>
-                            </div>
-                            <div class="trad-history mt-4">
-                                <div class="tab-content" id="myTabContent">
-                                    <div class="tab-pane fade show active" id="buy_order" role="tabpanel">
-                                        <div class="table-responsive" style="height:450px; overflow-y: scroll;">
-                                            <table class="dbkit-table" style="table-layout: fixed; font-family:'Lato', sans-serif; font-size:small" id="pendingOrders">
-                                                <tr class="heading-td">
-                                                    <td>Truck Name</td>
-@*                                                     <td>Truck Status</td>
- *@                                                    <td>Type</td>
-                                                    <td>Avg. Probability</td>
-                                                    <td>Date</td>
-                                                    <td>Confirm</td>
-                                                </tr>
-                                                @foreach (var violation in Model.LatestPendingViolationModels)
-                                                {
-                                                    confirmButtonId = confirmButtonId + violation.Id;
-                                                    <tr id="@confirmButtonId" style="font-family:'Lato', sans-serif; font-size:small">
-                                                        <td style="font-family:'Lato', sans-serif; font-size:small">@violation.Truck.TruckName</td>
-                                                        @* <td style="font-family:'Lato', sans-serif; font-size:small">
-                                                            @if (violation.IsTruckMoving == true)
-                                                            {
-                                                                <span>Moving</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <span>Stopped</span>
-                                                            }
-                                                        </td> *@
-                                                        <td style="font-family:'Lato', sans-serif; font-size:small">@violation.ViolationType.Name</td>
-                                                        <td style="font-family:'Lato', sans-serif; font-size:small">@violation.AverageProbability</td>
-                                                        <td style="font-family:'Lato', sans-serif; font-size:small">
-                                                            <div style="overflow-wrap">@violation.Date.ToString("yyyy-MM-dd, hh:mm:ss")</div>
-                                                        </td>
-                                                        <td>
-                                                            <a class="btn btn-primary" onclick="showViolationDetails(@violation.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels), @JsonSerializer.Serialize(confirmButtonId))" title="Confirm" style="color:white">
-                                                                Confirm
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </table>
-                                        </div>
-                                    </div>
-
+                        <div class="card-body">
+                            <h5 class="card-title">Violations<span>| Pending</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="ri-alarm-warning-line"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="pendingViolationCountId">@Model.LatestPendingViolationModels.Count</h6>
+                                    <span class="text-muted small pt-2 ps-1"># All pending violations</span>
                                 </div>
                             </div>
-                        }
-                        else
-                        {
-                        <h4 class="text-center p-5">there is no Pending Violation now</h4>
-                        }
-                    </div>
-                </div>
-            </div>
-            <!-- trading history area end -->
-            <!-- Live Crypto Price area start -->
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="header-title">
-                            Actual Violation Stats.
-                        </h4>
-                        <div class="cripto-live mt-1">
-                            <ul style="padding-right:0px">
-                                  @if (Model.ViolationTypeCounts != null)
-                        {
-                            @if (Model.ViolationTypeCounts.Count > 0)
-                            {
-                                @foreach (var type in Model.ViolationTypeCounts)
-                                {
-                                <hr>
-                                <li style="padding-bottom:0px; margin-bottom:0px">
-                                                <b style="font-size:smaller">@type.ViolationTypeName</b>
-                                                <span id="@type.ViolationTypeName" style="font-style:italic; font-weight:bold; font-size:smaller; color:red">@type.Count</span>
-                                </li>
-                                }
-                            }
-                        }
-                            </ul>
                         </div>
                     </div>
-                </div>
+                </div><!-- End Sales Card -->
+                <!-- Revenue Card -->
+                <div class="col-xxl-4 col-md-4 h-100">
+                    <div class="card info-card revenue-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Driver Violations <span>| Pending</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-check2-all"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="thisMonthActualCountId">@Model.TotalActualViolationCount</h6>
+                                    <span id="new" class="text-muted small pt-2 ps-1">New violations of this month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- End Revenue Card -->
+                <!-- Customers Card -->
+                <div class="col-xxl-4 col-md-4 h-100">
+                    <div class="card info-card customers-card">
+                        <div class="card-body">
+                            <h5 class="card-title">PPE Violations <span>| Pending</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 id="totalActualCountId">@Model.PendingViolationCount</h6>
+                                    <span id="retread" class="text-muted small pt-2 ps-1">All Actual Violations on the system</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- End Customers Card -->
+                <!-- Sales Card -->
+                <!-- End Sales Card -->
+                <!-- Revenue Card -->
+                <!-- Recent Sales -->
+                <div class="col-12">
+                    <div class="card recent-sales overflow-auto">
+                        <div class="card-body">
+                            <h5 class="card-title"> Pending Violation<span>|  Pending Violation available on the system </span></h5>
+                            <table id="movetable" class="table table-borderless datatable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Truck/Camera</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Avg. Probability</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Category</th>
+                                        <th scope="col">Truck Status</th>
+                                        <th scope="col">Confirm</th>
+                                    </tr>
+                                </thead>
+                                @if (Model.LatestPendingViolationModels.Count > 0)
+                                {
+                                    <tbody>
+                                        @foreach (var violation in Model.LatestPendingViolationModels)
+                                        {
+                                            confirmButtonId = confirmButtonId + violation.Id;
+                                            <tr id="@confirmButtonId">
+                                                <th scope="row"><a href="#">@violation.TruckID</a></th>
+                                                <td>@violation.ViolationType.Name</td>
+                                                <td class="">@violation.AverageProbability</td>
+                                                <td>@violation.Date.ToString("yyyy-MM-dd, hh:mm:ss")</td>
+                                                @if(violation.Category=="camera")
+                                                {
+                                                    <td class="">PPE</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="">Driver</td>
+                                                }
+                                                @if (violation.Category == "camera")
+                                                {
+                                                    <td class=""></td>
+                                                }
+                                                else if (violation.IsTruckMoving)
+                                                {
+                                                    <td class="">Moving</td>
+                                                }
+                                                else
+                                                {
+                                                <td class="">Stopped</td>
+                                                }
+                                                @if (violation.Category == "camera")
+                                                {
+                                                    <td>
+                                                        <a class="btn btn-primary" onclick="showViolationDetails(@violation.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels.Where(v=>v.Category == "camera" || v.Category == "all").ToList()), @JsonSerializer.Serialize(confirmButtonId),1)" title="Confirm" style="color:white">
+                                                            Confirm
+                                                        </a>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <a class="btn btn-primary" onclick="showViolationDetails(@violation.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels.Where(v=>v.Category != "camera").ToList()), @JsonSerializer.Serialize(confirmButtonId),1)" title="Confirm" style="color:white">
+                                                            Confirm
+                                                        </a>
+                                                    </td>
+                                                }
+                                            
+
+                                        </tr>
+                                        }
+
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- End Recent Sales -->
             </div>
-            <!-- Live Crypto Price area end -->
-        </div>
+        </div><!-- End Left side columns -->
+        <!-- Right side columns -->
+
     </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</section>

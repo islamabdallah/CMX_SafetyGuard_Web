@@ -17,6 +17,8 @@ namespace WebDriverViolation.Models.Models
         public bool SendMail { get; set; }
 
         [Required]
-        public string TruckName { get; set; } 
+        public string TruckName { get; set; }
+        public string? CameraIp { get; set; }
+        public string? Category { get; set; }
     }
 }

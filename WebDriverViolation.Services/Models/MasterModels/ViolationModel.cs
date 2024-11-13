@@ -62,5 +62,6 @@ namespace WebDriverViolation.Services.Models.MasterModels
         public bool IsTruckMoving { get; set; }
 
         public List<double> PriobabilityOfViolationsWithSameCode { get; set; }
+        public string? Category { get; set; }
     }
 }

@@ -62,6 +62,8 @@ builder.Services.AddScoped<IOutlookSenderService, OutlookSenderService>();
 builder.Services.AddScoped<IUserInputValidationService, UserInputValidationService>();
 builder.Services.AddScoped<IObjectMappingService, ObjectMappingService>();
 builder.Services.AddScoped<IViolationTypeAccuracyLavelService, ViolationTypeAccuracyLavelService>();
+builder.Services.AddScoped<ITruckDetailsService, TruckDetailsService>();
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

@@ -9,16 +9,18 @@ namespace WebDriverViolation.Models.Models.MasterModels
 {
     public class Violation:EntityWithIdentityId<long>
     {
-
         [Required]
         public string Code { get; set; }
+
+        public string? CarMovingStatus { get; set; }
 
         public Truck Truck { get; set; }
 
         [Required]
         public string TruckID { get; set; }
 
-        public  ViolationType ViolationType { get; set; }
+        public ViolationType ViolationType { get; set; }
+
         [Required]
         public int ViolationTypeID { get; set; }
 
@@ -28,6 +30,8 @@ namespace WebDriverViolation.Models.Models.MasterModels
         public string? imageName { get; set; }
 
         public int? ConfirmationViolationTypeID { get; set; }
+
+        public string? CameraPosition { get; set; }
 
         public ConfirmationStatus ConfirmationStatus { get; set; }
 
@@ -41,22 +45,22 @@ namespace WebDriverViolation.Models.Models.MasterModels
         public DateTime? ConfirmationDate { get; set; }
 
         [Required]
-        public Double Probability { get; set; }
-        [Required]
-        public Double AverageProbability { get; set; }
+        public double Probability { get; set; }
 
         [Required]
-        public string AllClassessProbability { get; set; }
+        public double AverageProbability { get; set; }
 
+        [Required]
+        public string? AllClassessProbability { get; set; }
 
-       public long ViolationTypeAccuracyLavelId { get; set; }
-
-        //public ViolationTypeAccuracyLavel ViolationTypeAccuracyLavel { get; set; }
+        public long? ViolationTypeAccuracyLavelId { get; set; }
 
         public int MailSent { get; set; }
 
-        public double TotalTime { get; set; }
+        public double? TotalTime { get; set; }
 
-        public bool IsTruckMoving { get; set; }
+        public bool? IsTruckMoving { get; set; }
+
+        public string? Category { get; set; }
     }
 }

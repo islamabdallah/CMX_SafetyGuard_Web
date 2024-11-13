@@ -1,4 +1,5 @@
-﻿using WebDriverViolation.Models.Models;
+﻿using System.ComponentModel;
+using WebDriverViolation.Models.Models;
 
 namespace WebDriverViolation.Services.Models.MasterModels
 {

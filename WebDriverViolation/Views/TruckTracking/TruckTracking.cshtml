@@ -3,56 +3,68 @@
 @{
     ViewData["Title"] = "SearchViolation";
     string checkBoxId = "";
-    Layout = "~/Views/Shared/_Layout2.cshtml";
+    Layout = "~/Views/Shared/_NiceLayout.cshtml";
 
 }
 
+<div class="pagetitle">
+    <h1>SearchViolation</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/SearchViolation">SearchViolation</a></li>
+            <li class="breadcrumb-item active">Violation</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
 
-<div>
-    <div class="card card-default">
-        <!-- /.card-header -->
-        <div class="card-body">
-            <h5 class="card-title">Search Truck status</h5>
-            <form asp-action="SearchTruckTracking">
-                <div class="row">
+<section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <h5 class="card-title">Search Truck status</h5>
+                    <form class="row g-3 needs-validation" novalidat asp-action="SearchTruckTracking">
+                
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label> Start</label>
+                                    <label class="form-label"> Start</label>
                             <input class="form-control" asp-for="ToDate" style="width: 100%;" />
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label> Stop</label>
+                                <label class="form-label"> Stop</label>
                             <input class="form-control" asp-for="FromDate" style="width: 100%;" />
                         </div>
                     </div>
-                    <div class="col-md-3 ">
+                    <div class="col-md-4 ">
                         <div class="form-group">
-                            <label>Truck</label>
+                                <label class="form-label">Truck</label>
                             <select class="form-control select2bs4" style="width: 100%;" asp-for="SelectedTruckID" asp-items="@(new SelectList(Model.Trucks, "Id", "TruckName"))">
                                 <option value="-1" selected="selected"> Select Truck</option>
                             </select>
                         </div>
                     </div>
 
-                </div>
-                <div class="row">
+
+                        <div class="col-12">
                     <input type="submit" value="Search" class=" btn btn-primary">
                 </div>
             </form>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-</div>
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <h4>Show Truck Status</h4>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Show Truck Status</h5>
                 @if (Model.TruckRunningTrackingAPIModels != null)
                 {
-                    <table id="example1" class="table table-bordered table-hover">
+                     <table id="movetable" class="table table-borderless datatable">
+                   @*  <table id="example1" class="table table-bordered table-hover"> *@
                         <thead>
                             <tr>
                                 <th>
@@ -94,3 +106,4 @@
     </div>
 </div>
 
+</section>

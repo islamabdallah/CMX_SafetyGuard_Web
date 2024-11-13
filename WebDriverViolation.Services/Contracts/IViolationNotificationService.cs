@@ -10,7 +10,7 @@ namespace WebDriverViolation.Services.Contracts
 {
     public interface IViolationNotificationService
     {
-        Task<ViolationNotificationModel> CreateViolationNotification(string message, long violationId);
+        Task<ViolationNotificationModel> CreateViolationNotification(string message, long violationId, string? category);
 
         ViolationNotificationModel GetViolationNotification(long id);
 

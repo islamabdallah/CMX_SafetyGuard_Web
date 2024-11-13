@@ -13,6 +13,8 @@ namespace WebDriverViolation.Services.Contracts
         Task<List<ViolationModel>> GetViolationByType(int type);
         Task<List< ViolationModel>> GetViolationByDate(DateTime date);
          Task<string> SaveImage(string strm, string uploadFolder);
+        Task<string> SaveImagePPE(string strm, string uploadFolder,int index,string Namey,string CameraName);
+        Task<string> SaveImageDriver(string strm, string uploadFolder, int index, string Namey, string TruckName);
 
         Task<List<ViolationModel>> SearchForViolation(SearchViolationModel searchViolationModel);
 

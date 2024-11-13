@@ -37,55 +37,56 @@ namespace WebDriverViolation.Controllers
 
         public async Task<IActionResult> Index()
         {
+            HomeController homeController = this;
             try
             {
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser != null)
+                if (await homeController._userManager.GetUserAsync(homeController.User) == null)
+                    return (IActionResult)homeController.RedirectToAction("ERROR404");
+                DashBoardModel dashBoardModel1 = new DashBoardModel();
+                List<ViolationModel> pendingViolations = await _violationService.GetAllPendingViolations();
+                Dictionary<string, long> totalviolationPerType = await homeController._violationService.GetActualViolationCountsperType();
+               // DashBoardModel dashBoardModel2 = dashBoardModel1;
+                dashBoardModel1.CurrentMonthActualViolationCount = await homeController._violationService.GetCurrentMonthActualViolationCount();
+               // dashBoardModel2 = (DashBoardModel)null;
+                //dashBoardModel2 = dashBoardModel1;
+                dashBoardModel1.TotalTrucksCount = await _truckService.GetAllActiveTrucksCount("Cement");
+               // dashBoardModel2 = (DashBoardModel)null;
+               // dashBoardModel2 = dashBoardModel1;
+                dashBoardModel1.ViolationTypeModels = await homeController._violationTypeService.GetAllViolationTypes();
+             //   dashBoardModel2 = (DashBoardModel)null;
+                if (pendingViolations != null)
                 {
-                    DashBoardModel dashBoardModel = new DashBoardModel();
-                    var pendingViolations = await _violationService.GetAllPendingViolations();
-                    var totalviolationPerType = await _violationService.GetActualViolationCountsperType();
-                    dashBoardModel.PendingViolationCount = await _violationService.GetPendingViolationCount();
-                    dashBoardModel.TotalActualViolationCount = await _violationService.GetAllActualViolationCount();
-                    dashBoardModel.CurrentMonthActualViolationCount = await _violationService.GetCurrentMonthActualViolationCount();
-                    dashBoardModel.TotalTrucksCount = await _truckService.GetAllActiveTrucksCount("Cement");
-                    dashBoardModel.ViolationTypeModels =await _violationTypeService.GetAllViolationTypes();
-                    if (pendingViolations != null)
-                    {
-                        dashBoardModel.LatestPendingViolationModels = pendingViolations.ToList();
-                    }
-                    else
-                    {
-                        dashBoardModel.LatestPendingViolationModels = new List<ViolationModel>();
-                    }
-                    if (totalviolationPerType != null)
-                    {
-                        List<ViolationTypeCount> violationTypeCounts = new List<ViolationTypeCount>();
-                        foreach (var type in dashBoardModel.ViolationTypeModels)
-                        {
-                            violationTypeCounts.Add(new ViolationTypeCount
-                            {
-                                ViolationTypeId = type.ID,
-                                ViolationTypeName = type.Name,
-                                Count = totalviolationPerType
-                            .Where(t => t.Key == type.Name).FirstOrDefault().Value
-                            });
-                        }
-                        dashBoardModel.ViolationTypeCounts = violationTypeCounts.OrderBy(t => t.ViolationTypeId).ToList();
-                    }
-                    return View(dashBoardModel);
-
+                    dashBoardModel1.LatestPendingViolationModels = pendingViolations.ToList<ViolationModel>();
+                    dashBoardModel1.PendingViolationCount = (long)pendingViolations.ToList<ViolationModel>().Where<ViolationModel>((Func<ViolationModel, bool>)(t => t.Category == "camera")).Count<ViolationModel>();
+                    dashBoardModel1.TotalActualViolationCount = (long)pendingViolations.Where<ViolationModel>((Func<ViolationModel, bool>)(t => t.Category != "camera")).Count<ViolationModel>();
                 }
                 else
                 {
-                    return RedirectToAction("ERROR404");
+                    dashBoardModel1.LatestPendingViolationModels = new List<ViolationModel>();
+                    dashBoardModel1.PendingViolationCount = 0L;
+                    dashBoardModel1.TotalActualViolationCount = 0L;
                 }
+                if (totalviolationPerType != null)
+                {
+                    List<ViolationTypeCount> source = new List<ViolationTypeCount>();
+                    foreach (ViolationTypeModel violationTypeModel in dashBoardModel1.ViolationTypeModels)
+                    {
+                        ViolationTypeModel type = violationTypeModel;
+                        source.Add(new ViolationTypeCount()
+                        {
+                            ViolationTypeId = type.ID,
+                            ViolationTypeName = type.Name,
+                            Count = totalviolationPerType.Where<KeyValuePair<string, long>>((Func<KeyValuePair<string, long>, bool>)(t => t.Key == type.Name)).FirstOrDefault<KeyValuePair<string, long>>().Value
+                        });
+                    }
+                    dashBoardModel1.ViolationTypeCounts = source.OrderBy<ViolationTypeCount, int>((Func<ViolationTypeCount, int>)(t => t.ViolationTypeId)).ToList<ViolationTypeCount>();
+                }
+                return (IActionResult)homeController.View((object)dashBoardModel1);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return RedirectToAction("ERROR404");
+                return (IActionResult)homeController.RedirectToAction("ERROR404");
             }
-
         }
 
 
