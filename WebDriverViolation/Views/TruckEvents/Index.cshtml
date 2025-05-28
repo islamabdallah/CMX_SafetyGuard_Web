@@ -1,0 +1,360 @@
+﻿@model WebDriverViolation.Services.Models.MasterModels.SearchTruckEventModel
+
+@{
+    ViewData["Title"] = "SearchTruckEvents";
+    Layout = "~/Views/Shared/_NiceLayoutCustom.cshtml";
+
+    string checkBoxId = "";
+
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ @if (Model.TruckDetails != null)
+{
+    <script>
+        window.onload = function () {
+        // Your JavaScript code here
+        alert("Page loaded!");
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chartData = @Html.Raw(Json.Serialize(Model.TruckDetails.Select(t=>t.Fuel_Level).ToList())); // Assuming model has the chart data
+        var chartDate = @Html.Raw(Json.Serialize(Model.TruckDetails.Select(t=>t.Date).ToList())); // Assuming model has the chart data
+        //console.log(chartData);
+        console.log(chartDate.lenth);
+        //alert(chartData);
+        alert(chartDate.lenth);
+        var myChart = new Chart(ctx, {
+        type: 'line', // Chart type (line, bar, etc.)
+        data: {
+        labels: chartDate,
+        datasets: [{
+        label: 'Fuel Levels Dataset',
+        data: chartData,
+        borderColor: 'rgb(75, 192, 192)',
+        fill: false
+        }]
+        }
+        });
+        };
+
+    </script>
+}
+else
+{
+    <script>
+        window.onload = function () {
+        // Your JavaScript code here
+        //alert("Page loaded!");
+       
+        var myChart = new Chart(ctx, {
+        type: 'line', // Chart type (line, bar, etc.)
+        data: {
+        labels: [],
+        datasets: [{
+        label: 'Fuel Levels Dataset',
+        data: [],
+        borderColor: 'rgb(75, 192, 192)',
+        fill: false
+        }]
+        }
+        });
+        };
+
+    </script>
+}
+
+<div class="modal fade" id="detailsLPRmodal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">LPRlog Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+
+                            <div class="card-body pt-3">
+                                <h5 class="card-title">LPRlog Details</h5>
+                            </div>
+                            <div class="tab-content pt-2">
+                                <div class="row pt-3">
+                                    <img src="~/assets/img/slides-1.jpg" class="d-block w-100" alt="..." height="400" id="lmImage1">
+
+                                </div>
+                                <div class="row pt-3">
+                                    <div class="col-lg-6 mb-1">
+                                        <h6>Camera Name </h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-1">
+                                        <label class="text-muted" id="lmCamera1"></label>
+                                    </div>
+                                </div>
+                                <div class="row pt-3">
+                                    <div class="col-lg-6 mb-3">
+                                        <h6>OCR</h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+
+                                        <label class="text-muted" id="lmOCR1"></label>
+                                    </div>
+                                </div>
+
+                                <div class="row pt-3">
+                                    <div class="col-lg-6 mb-3">
+                                        <h6>Confirmed OCR</h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+
+                                        <label class="text-muted" id="lmOCR2"></label>
+                                    </div>
+                                </div>
+
+
+                                <div class="row pt-3" id="NeedConfirmation">
+                                    <div class="col-lg-6 mb-1">
+                                        <h6>FeedBack </h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-1">
+
+                                        <label class="text-muted" id="lmFeedBack1"></label>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div><!-- End Card with header and footer -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div><!-- End Basic Modal-->
+
+<div class="pagetitle">
+    <h1>SearchTruckEvents</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/Index">SearchTruck</a></li>
+            <li class="breadcrumb-item active">TruckEvents</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section">
+
+
+    <!-- data table start -->
+    <div class="row">
+        <!-- data table start -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Search TruckEvents</h5>
+                    <form class="row g-3 needs-validation" novalidate asp-action="Index">
+                        <div class="col-md-6">
+                            <label class="form-label">Truck</label>
+                            @Html.DropDownListFor(m => m.SelectedTruckID, new SelectList(Model.Trucks), "Select Camera", new { @class = "form-select", @data_toggle = "SelectedTruckID",required = "required" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Truck Events</label>
+                            <select class="form-select" style="width: 100%;" id="SelectedConfirmationStatusId" asp-for="SelectedTruckViolationType" asp-items="@(new SelectList(Model.TruckViolationTypes, "Id", "TruckViolationName"))">
+                                <option value="-1" selected="selected"> Select Status</option>
+                            </select>
+                        </div>
+
+                   
+
+                        <div class="col-md-6">
+                            <label for="example-datetime-local-input" class="form-label">From</label>
+                            <input class="form-control" type="datetime-local" bind="closedPlatform.Start"
+                                   bind:format="yyyy-MM-ddTHH:mm" step=".001" id="From" asp-for="From">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="example-datetime-local-input" class="form-label">To</label>
+                            <input class="form-control" type="datetime-local" bind="closedPlatform.Start"
+                                   bind:format="yyyy-MM-ddTHH:mm" step=".001" id="To" asp-for="To">
+                        </div>
+
+
+
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit" name="submitButton" value="Submit">Submit form</button>
+                            <button class="btn btn-success" type="submit" name="submitButton" value="Export">
+                                <span class="badge badge-light"><i class="bi bi-file-earmark-spreadsheet"></i>
+                                    </span>Export to Excel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- data Grap start -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Search TruckEvents</h5>
+                   <div class="row g-3">
+                        <canvas id="myChart" width="400" height="200"></canvas>
+
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Search Violations
+                    </h5>
+                    @*  <div class="data-tables"> *@
+                   
+                        <table id="movetable" class="table table-borderless datatable">
+                            @*  <table id="dataTable2" class="table table-borderless datatable dataTable-table"> *@
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        #Id
+                                    </th>
+
+                                    <th scope="col">
+                                        Truck Number
+                                    </th>
+                                    <th scope="col">
+                                        Speed
+                                    </th>
+                                    <th scope="col">
+                                        Rbm
+                                    </th>
+                                    @*  <th scope="col">
+                                Truck Status
+                                </th> *@
+                                    <th scope="col"> StartTime</th>
+
+                                    <th scope="col">
+                                        EndTime
+                                    </th>
+                                    <th scope="col">
+                                        Last Speed
+                                    </th>
+                                  
+                                    <th scope="col"> Duration</th>
+
+                                    <th scope="col">
+                                        Fuel Level
+                                    </th>
+                                    <th>Event</th>
+                                </tr>
+                            </thead>
+                            @if (Model.TruckDetails != null)
+                            {
+                                <tbody>
+                                    @if (Model.TruckDetails.Count > 0)
+                                    {
+                                        @foreach (var item in Model.TruckDetails)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Id)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.TruckId)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Speed)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Rbm)
+
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.StartTime)
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.EndTime)
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.LastSpeed)
+
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Duration)
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Fuel_Level)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.TruckViolationType.TruckViolationName)
+
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <h2>There Is No Events</h2>
+                                    }
+                                </tbody>
+                            }
+                        </table>
+                    
+                </div>
+                @* </div> *@
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function showConfirmLPR(item, trucks, feedBacks) {
+        //alert(feedBacks.length);
+        //alert(item.ImageName);
+        //alert(trucks);
+        document.getElementById("lmImage").src = item.ImageName;
+        document.getElementById("lmCamera").innerHTML = item.TruckId;
+        document.getElementById("lmOCR").value = item.OCR;
+        document.getElementById("lmCarId").value = item.Id;
+        var TypesDD = document.getElementById("lmFeedBack");
+        for (var index = 0; index < feedBacks.length; index++) {
+            var op = document.createElement('option');
+            op.text = feedBacks[index];
+            op.value = feedBacks[index];
+            if (feedBacks[index] == "Matched") {
+                op.selected = true;
+            }
+            if (feedBacks[index] == "NotFound") {
+                op.text = "NotFound-ForMobileApp";
+            }
+            TypesDD.options[index] = op;
+        }
+
+
+        $('#confirmLPRmodal').modal('show');
+    }
+</script>
+
+
+
+
+
+
+@* <script src="~/Strdash/assets/js/vendor/jquery-2.2.4.min.js"></script>
+<!-- Start datatable js -->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script> *@

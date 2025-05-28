@@ -1,0 +1,443 @@
+﻿@model WebDriverViolation.Services.Models.MasterModels.SearchLPRModel
+
+@{
+    ViewData["Title"] = "SearchLPRlogs";
+    Layout = "~/Views/Shared/_NiceLayout.cshtml";
+
+    int checkBoxId = 0;
+    string lprButtonId = "";
+
+}
+<div class="modal fade" id="confirmLPRmodal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm LPR log</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xl-12">
+                <div class="card">
+                            <input type="text" id="lmlprButtonId" hidden/>
+                    <div class="card-body pt-3">
+                        <h5 class="card-title">LPR Confirm Details</h5>
+                    </div>
+                            <div class="tab-content pt-2">
+                    <div class="row pt-3">
+                        <img src="~/assets/img/slides-1.jpg" class="d-block" alt="..." width="480" height="400" id="lmImage">
+
+                    </div>
+                    <div class="row pt-3">
+                        <div class="col-lg-6 mb-1">
+                            <h6>Camera Name </h6>
+                        </div>
+                        <div class="col-lg-6 mb-1">
+                            <label class="text-muted" id="lmCamera"></label>
+                        </div>
+                    </div>
+                    <div class="row pt-3">
+                        <div class="col-lg-6 mb-3">
+                            <h6>OCR</h6>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                                        <input class="form-control" style="width: 100%;" id="lmOCR" oninput="onInputChange(event)" lang="ar" />
+                           
+                        </div>
+                    </div>
+                                
+
+                    <div class="row pt-3" id="NeedConfirmation">
+                        <div class="col-lg-6 mb-1">
+                            <h6>FeedBack </h6>
+                        </div>
+                        <div class="col-lg-6 mb-1">
+                            <select class="form-control select2bs4" style="width: 100%;" id="lmFeedBack">
+                            </select>
+                                        <input type="number" id="lmCarId" hidden/>
+                        </div>
+
+                    </div>
+
+                    </div>
+                   
+                </div><!-- End Card with header and footer -->
+                </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLPR()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div><!-- End Basic Modal-->
+
+<div class="modal fade" id="detailsLPRmodal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">LPRlog Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+
+                            <div class="card-body pt-3">
+                                <h5 class="card-title">LPRlog Details</h5>
+                            </div>
+                            <div class="tab-content pt-2">
+                                <div class="row pt-3">
+                                    <img src="~/assets/img/slides-1.jpg" class="d-block w-100" alt="..." height="400" id="lmImage1">
+
+                                </div>
+                                <div class="row pt-3">
+                                    <div class="col-lg-6 mb-1">
+                                        <h6>Camera Name </h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-1">
+                                        <label class="text-muted" id="lmCamera1"></label>
+                                    </div>
+                                </div>
+                                <div class="row pt-3">
+                                    <div class="col-lg-6 mb-3">
+                                        <h6>OCR</h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+                                        
+                                        <label class="text-muted" id="lmOCR1"></label>
+                                    </div>
+                                </div>
+
+                                <div class="row pt-3">
+                                    <div class="col-lg-6 mb-3">
+                                        <h6>Confirmed OCR</h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+
+                                        <label class="text-muted" id="lmOCR2"></label>
+                                    </div>
+                                </div>
+
+
+                                <div class="row pt-3" id="NeedConfirmation">
+                                    <div class="col-lg-6 mb-1">
+                                        <h6>FeedBack </h6>
+                                    </div>
+                                    <div class="col-lg-6 mb-1">
+                                       
+                                        <label class="text-muted" id="lmFeedBack1"></label>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div><!-- End Card with header and footer -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div><!-- End Basic Modal-->
+
+<div class="pagetitle">
+    <h1>SearchLPRlogs</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/Index">SearchLPRlogs</a></li>
+            <li class="breadcrumb-item active">LPRlogs</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<section class="section">
+
+
+    <!-- data table start -->
+    <div class="row">
+        <!-- data table start -->
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Search LPR</h5>
+                    <form class="row g-3 needs-validation" novalidate asp-action="Index">
+                        <div class="col-md-4">
+                            <label class="form-label">Camera</label>
+                            @* <select class="form-select" style="width: 100%;" id="SelectedTruckID" asp-for="SelectedTruckID" asp-items="@(new SelectList(Model.Trucks),Model.Trucks,Model.Trucks)">
+                                <option value="-1" selected="selected"> Select Camera</option>
+                            </select> *@
+                            @Html.DropDownListFor(m => m.SelectedTruckID, new SelectList(Model.Trucks), "Select Camera", new { @class = "form-select", @data_toggle = "SelectedTruckID" })
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Confirmation Status</label>
+                            <select class="form-select" style="width: 100%;" id="SelectedConfirmationStatusId" asp-for="SelectedConfirmationStatusId" asp-items="@(new SelectList(Model.ConfirmationStatusModel, "Id", "Name"))">
+                                <option value="-1" selected="selected"> Select Status</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4" >
+                            <label class="form-label">Feed Back</label>
+                           @*  <select class="form-select" style="width: 100%;" asp-for="SelectedFeedbackId" id="FeedBackId" asp-items="@(new SelectList(Model.FeedBacks, "FeedBacks", "FeedBacks"))">
+                                <option value="-1" selected="selected">Select FeedBack</option>
+
+                            </select> *@
+                            @Html.DropDownListFor(m => m.SelectedFeedbackId, new SelectList(Model.FeedBacks), "Select FeedBack", new { @class = "form-select", @data_toggle = "SelectedFeedbackId" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="example-datetime-local-input" class="form-label">From</label>
+                            <input class="form-control" type="datetime-local" bind="closedPlatform.Start"
+                                   bind:format="yyyy-MM-ddTHH:mm" step=".001" id="From" asp-for="From">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="example-datetime-local-input" class="form-label">To</label>
+                            <input class="form-control" type="datetime-local" bind="closedPlatform.Start"
+                                   bind:format="yyyy-MM-ddTHH:mm" step=".001" id="To" asp-for="To">
+                        </div>
+
+                       
+                     
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit">Submit form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Search Violations
+                    </h5>
+                    @*  <div class="data-tables"> *@
+                    @if (Model.LPRlogs != null)
+                    {
+                        <table id="movetable" class="table table-borderless datatable">
+                            @*  <table id="dataTable2" class="table table-borderless datatable dataTable-table"> *@
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        #Id
+                                    </th>
+
+                                    <th scope="col">
+                                        OCR
+                                    </th>
+                                    <th scope="col">
+                                        Camera Name
+                                    </th>
+                                    <th scope="col">
+                                        Confirmation Status
+                                    </th>
+                                    @*  <th scope="col">
+                                Truck Status
+                                </th> *@
+                                    <th scope="col"> FeedBack</th>
+                                   
+                                    <th scope="col">
+                                        Date
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="lmtbody">
+                                @if (Model.LPRlogs.Count > 0)
+                                {
+                                    @foreach (var item in Model.LPRlogs)
+                                    {
+                                        lprButtonId = "lprButtonId" + item.Id;
+                                        checkBoxId++;
+                                        <tr id="@lprButtonId">
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Id)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.OCR)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.TruckId)
+                                            </td>
+                                            <td>
+                                               
+                                                @if (item.ConfirmationStatusId == 1)
+                                                {
+                                                    <span>Pending</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Confirmed</span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ConfirmationType)
+                                            </td>
+                                           
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Date)
+                                            </td>
+                                            <td>
+
+                                                @if (item.ConfirmationStatusId == 1)
+                                                {
+                                                    <button class="btn btn-primary" onclick="showConfirmLPR(@JsonSerializer.Serialize(item),@JsonSerializer.Serialize(Model.Trucks),@JsonSerializer.Serialize(Model.FeedBacks),@JsonSerializer.Serialize(lprButtonId))" title="Show Details">
+                                                        Confirm
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-primary" onclick="showLPRDetails(@JsonSerializer.Serialize(item))" title="Show Details">
+                                                        Details
+                                                    </button>
+                                                }
+                                                
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <h2>There Is No Violations</h2>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                @* </div> *@
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function showConfirmLPR(item, trucks, feedBacks, lprButtonId) {
+        //alert(feedBacks.length);
+        //alert(item.ImageName);
+        //alert(lprButtonId);
+        document.getElementById("lmlprButtonId").value = lprButtonId;
+        document.getElementById("lmImage").src = item.ImageName;
+        document.getElementById("lmCamera").innerHTML= item.TruckId;
+        document.getElementById("lmOCR").value = item.OCR;
+        document.getElementById("lmCarId").value = item.Id;
+        var TypesDD = document.getElementById("lmFeedBack");
+        for (var index = 0; index < feedBacks.length; index++) {
+            var op = document.createElement('option');
+            op.text = feedBacks[index];
+            op.value = feedBacks[index];
+            if (feedBacks[index] == "Matched") {
+                op.selected = true;
+            }
+            if (feedBacks[index] == "NotFound") {
+                op.text = "NotFound-ForMobileApp";
+            }
+            TypesDD.options[index] = op;
+        }
+    
+                
+        $('#confirmLPRmodal').modal('show');
+    }
+</script>
+
+<script>
+    function showLPRDetails(item) {
+        //alert(feedBacks.length);
+        //alert(item.ImageName);
+        //alert(trucks);
+         document.getElementById("lmImage1").src = item.ImageName;
+         document.getElementById("lmCamera1").innerHTML = item.TruckId;
+         document.getElementById("lmOCR1").innerHTML = item.OCR;
+        document.getElementById("lmOCR2").innerHTML = item.ConfirmedOCR;
+        document.getElementById("lmFeedBack1").innerHTML = item.ConfirmationType;
+
+        $('#detailsLPRmodal').modal('show');
+    }
+</script>
+
+<script>
+    // Function to convert digits to Arabic numerals
+    function convertToArabicNumerals(value) {
+        const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return value.replace(/\d/g, (digit) => arabicDigits[digit]);
+    }
+
+    // Event listener to transform numeric input on keyup
+    function onInputChange(event) {
+        let input = event.target;
+        input.value = convertToArabicNumerals(input.value);
+    }
+</script>
+
+<script>
+    
+        function confirmLPR() {
+           // var rr = document.getElementById("lmCameraPosition").value;
+            //  alert(rr);
+            var violation =
+            {
+                userNumber: 1,
+                carId: document.getElementById("lmCarId").value,
+                ocr: document.getElementById("lmOCR").value,
+                feedBack: document.getElementById("lmFeedBack").value,
+            };
+            $.ajax(
+                {
+                    url: '@Url.Content("~/")' + "LPR/AddConfirmationData",
+                    data: violation,
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                    var rowId = document.getElementById("lmlprButtonId").value;
+                   // alert(rowId);
+                    var row = document.getElementById(rowId);
+                        //console.log(row);
+                       // alert(row);
+                   
+                    if (data != null) {
+                        //alert("done");
+                        row.remove(); // Remove the row with the specific ID
+                    } else {
+                        alert('Error deleting row');
+                    }
+                   // var x = document.getElementById(lmlprButtonId).value;
+                    // $('#confirmLPRmodal').modal('toggle');
+                    //     alert(x);
+                    //     alert(x - 1);
+                    // document.getElementById("lmtbody").deleteRow(x-1);
+                        // alert("done");
+                        // swal("Success Process",
+                        //     {
+                        //         icon: "success",
+                        //     });
+                       
+                    },
+                    error: function () {
+                        swal("Failed process",
+                            {
+                                icon: "error",
+                            });
+                    }
+
+                });
+            $('#confirmLPRmodal').modal('toggle');
+        }
+       
+    
+</script>
+@* <script src="~/Strdash/assets/js/vendor/jquery-2.2.4.min.js"></script>
+<!-- Start datatable js -->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script> *@

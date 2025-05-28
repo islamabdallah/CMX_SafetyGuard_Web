@@ -160,8 +160,8 @@
     function saveCamera(TypesList) {
         var x = document.getElementById("lmCid").value;
         var y = document.getElementById("lmCip").value;
-        alert(x);
-        alert(y);
+        //alert(x);
+       // alert(y);
         $.ajax({
             type: 'POST',
             url: '@Url.Content("~/")' + "TruckTracking/addCamera", // we are calling json method
@@ -175,6 +175,8 @@
                         var numm = parseInt(TypesList[index].ID)
                         //  alert(num);
                         document.getElementById("checkBoxIdlm" + numm).checked = false;
+                        $('#lmAdd').modal('toggle');
+                        alert('Camera added Successfuly.' + ex);
                     }
                 }
 

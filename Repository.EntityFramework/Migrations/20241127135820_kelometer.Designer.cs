@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.EntityFramework;
 
@@ -11,9 +12,11 @@ using Repository.EntityFramework;
 namespace Repository.EntityFramework.Migrations
 {
     [DbContext(typeof(APPDBContext))]
-    partial class APPDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241127135820_kelometer")]
+    partial class kelometer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,46 +82,6 @@ namespace Repository.EntityFramework.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConfirmationStatuses");
-                });
-
-            modelBuilder.Entity("WebDriverViolation.Models.Models.DriverBehaviour", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("DriverId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDelted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ViolationAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ViolationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ViolationDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ViolationImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DriverBehaviours");
                 });
 
             modelBuilder.Entity("WebDriverViolation.Models.Models.LPRNotification", b =>
@@ -294,9 +257,6 @@ namespace Repository.EntityFramework.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<bool?>("Accurate")
-                        .HasColumnType("bit");
-
                     b.Property<string>("AllClassessProbability")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -349,9 +309,6 @@ namespace Repository.EntityFramework.Migrations
 
                     b.Property<int>("MailSent")
                         .HasColumnType("int");
-
-                    b.Property<bool?>("Observation")
-                        .HasColumnType("bit");
 
                     b.Property<double>("Probability")
                         .HasColumnType("float");
@@ -514,15 +471,13 @@ namespace Repository.EntityFramework.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("TruckViolationTypeId")
+                    b.Property<long?>("TruckViolationId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TruckViolationTypeId");
 
                     b.ToTable("TruckDetails");
                 });
@@ -788,15 +743,6 @@ namespace Repository.EntityFramework.Migrations
                         .IsRequired();
 
                     b.Navigation("Violation");
-                });
-
-            modelBuilder.Entity("WebDriverViolation.Models.Models.TruckDetail", b =>
-                {
-                    b.HasOne("WebDriverViolation.Models.Models.TruckViolationType", "TruckViolationType")
-                        .WithMany()
-                        .HasForeignKey("TruckViolationTypeId");
-
-                    b.Navigation("TruckViolationType");
                 });
 
             modelBuilder.Entity("WebDriverViolation.Models.Models.TruckRunningTracking", b =>

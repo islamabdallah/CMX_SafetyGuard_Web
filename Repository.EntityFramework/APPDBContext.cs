@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Repository.EntityFramework.Migrations;
 using WebDriverViolation.Models.Models;
 using WebDriverViolation.Models.Models.MasterModels;
 
@@ -14,7 +15,7 @@ namespace Repository.EntityFramework
         }
 
         public DbSet<Violation> Violations { get; set; }
-
+        public DbSet<CameraViolation> CameraViolations { get; set; }
         public DbSet<ViolationType> ViolationTypes { get; set; }
 
         public DbSet<TruckRunningTracking> TruckRunningTrackings { get; set; }
@@ -22,6 +23,9 @@ namespace Repository.EntityFramework
         public DbSet<ViolationNotification> ViolationNotification { get; set; }
 
         public DbSet<UserViolationNotification> UserViolationNotification { get; set; }
+        public DbSet<LPRNotification> LPRNotifications { get; set; }
+
+        public DbSet<UserLPRNotification> UserLPRNotifications { get; set; }
 
         public DbSet<ConfirmationStatus> ConfirmationStatuses { get; set; }
 
@@ -29,6 +33,11 @@ namespace Repository.EntityFramework
 
          public DbSet<Truck> Trucks { get; set; }
         public DbSet<ViolationTypeAccuracyLavel> ViolationTypeAccuracyLavels { get; set; }
+        public DbSet<TruckDetail> TruckDetails { get; set; }
+        public DbSet<TruckViolationType> TruckViolationTypes { get; set; }
+        public DbSet<LPRlogs> LPRs { get; set; }
+
+        public DbSet<DriverBehaviour> DriverBehaviours { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

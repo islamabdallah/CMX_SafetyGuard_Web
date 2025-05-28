@@ -87,25 +87,7 @@
                                 <a class="btn" onclick="javascript:ResetNotification();"><span class="badge rounded-pill bg-primary p-2 ms-2">Clear all</span></a>
                             </li>
                             <div id="test">
-                                   @if (notifications != null)
-                                {
-                                    @foreach (var notification in notifications)
-                                    {
-                                    <li id="hrr+@notification.ViolationNotification.ViolationID">
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                    <a onclick="showViolationDetailslm(@notification.ViolationNotification.ViolationID,@notification.ViolationNotification.ViolationID, @JsonSerializer.Serialize(ViolationTypes), 0)" class="notify-item">
-                                    <li class="notification-item" id="Name+@notification.ViolationNotification.ViolationID">
-                                                <i class="bi bi-x-circle text-danger"></i>
-                                                <div>
-                                            <h4>@notification.ViolationNotification.Violation.ViolationType.Name</h4>
-
-                                            <p>@notification.ViolationNotification.Message</p>
-                                                </div>
-                                            </li>
-                                        </a>
-                                    }
-                                }
+                                
                             </div>
                         </ul><!-- End Notification Dropdown Items -->
 
@@ -150,65 +132,14 @@
         <aside id="sidebar" class="sidebar">
             <ul class="sidebar-nav" id="sidebar-nav">
                 <li class="nav-item">
-                    <a class="nav-link " href="~/Home/Index">
+                    <a class="nav-link " href="~/TruckEvents/Index">
                         <i class="bi bi-grid"></i>
                         <span>Dashboard</span>
                     </a>
                 </li><!-- End Dashboard Nav -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-search"></i><span>Search violations</span><i class="bi bi-chevron-down ms-auto"></i>
-                    </a>
-                    <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                        <li>
-                            <a asp-controller="Violation" asp-action="SearchViolation">
-                                <i class="bi bi-circle"></i><span>Driver violations</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Violation" asp-action="SearchPPEViolation">
-                                <i class="bi bi-circle"></i><span>PPE violations</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Violation" asp-action="SearchPPE_Events">
-                                <i class="bi bi-circle"></i><span>PPE Events</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li><!-- End Tables Nav -->
+            
 
-                <li class="nav-item">
-                    <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-layout-text-window-reverse"></i><span>Master Data</span><i class="bi bi-chevron-down ms-auto"></i>
-                    </a>
-                    <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                        <li>
-                            <a class="nav-link " asp-controller="TruckTracking" asp-action="SearchTruckTracking">
-                                <i class="bi bi-circle"></i><span>Search Trucks</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link " asp-controller="TruckTracking" asp-action="CameraTracking">
-                                <i class="bi bi-circle"></i><span>Cameras Tracking</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li><!-- End Tables Nav -->
-
-                <li class="nav-item">
-                    <a class="nav-link collapsed" data-bs-target="#forms-nav2" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-layout-text-window-reverse"></i><span>LPR logs</span><i class="bi bi-chevron-down ms-auto"></i>
-                    </a>
-                    <ul id="forms-nav2" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                        <li>
-                            <a class="nav-link " asp-controller="LPR" asp-action="Index">
-                                <i class="bi bi-circle"></i><span>Search lpr</span>
-                            </a>
-                        </li>
-                       
-                    </ul>
-                </li><!-- End Tables Nav -->
+             
 
 
             </ul>
@@ -348,43 +279,6 @@
                                                         </div>
                                                     </div>
 
-                                                    <fieldset class="row mb-3" id="f1">
-                                                        <legend class="col-form-label col-lg-6 mb-1">Accurate</legend>
-                                                        <div class="col-lg-6 mb-1">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="True">
-                                                                <label class="form-check-label" for="gridRadios1">
-                                                                   Yes
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="False">
-                                                                <label class="form-check-label" for="gridRadios2">
-                                                                    No
-                                                                </label>
-                                                            </div>
-                                                           
-                                                        </div>
-                                                    </fieldset>
-
-                                                    <fieldset class="row mb-3" id="f2">
-                                                        <legend class="col-form-label col-lg-6 mb-1">Observation</legend>
-                                                        <div class="col-lg-6 mb-1">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="gridRadioss" id="gridRadios3" value="True" >
-                                                                <label class="form-check-label" for="gridRadios3">
-                                                                    Yes
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="gridRadioss" id="gridRadios4" value="False">
-                                                                <label class="form-check-label" for="gridRadios4">
-                                                                    No
-                                                                </label>
-                                                            </div>
-
-                                                        </div>
-                                                    </fieldset>
 
                                                     <div class="row pt-1" id="NeedConfirmation">
                                                         <div class="col-lg-6 mb-1">
@@ -481,44 +375,7 @@
         <script src="~/js/newsite.js"></script>
         <script src="~/js/sweetalert.min.js"></script>
         <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.js"></script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const accurateRadios = document.getElementsByName("gridRadios");
-                const observationFieldset = document.getElementById("f2");
-                const confirmedTypeRow = document.getElementById("NeedConfirmation");
-
-                function handleAccurateChange() {
-                    const selected = [...accurateRadios].find(radio => radio.checked);
-                    if (selected && selected.value === "True") {
-                        // Show observation
-                        observationFieldset.classList.remove("d-none");
-                        // Hide ConfirmedTypeList
-                        confirmedTypeRow.classList.add("d-none");
-                        // document.getElementById("ConfirmationButton").disabled =false;
-                        
-                        document.getElementById("ConfirmationButton").classList.remove("disabled");
-                        document.getElementById("RejectionButton").classList.remove("disabled");
-                    } else if (selected && selected.value === "False") {
-                        // Hide observation
-                        observationFieldset.classList.add("d-none");
-                        // Show ConfirmedTypeList
-                        confirmedTypeRow.classList.remove("d-none");
-                        document.getElementById("ConfirmationButton").classList.remove("disabled");
-                        document.getElementById("RejectionButton").classList.remove("disabled");
-                    }
-                }
-
-                // Attach event listeners
-                accurateRadios.forEach(radio => {
-                    radio.addEventListener("change", handleAccurateChange);
-                });
-
-                // Initial check
-                handleAccurateChange();
-            });
-        </script>
-
+     
 
         <script>
             function clearElements() {
@@ -557,8 +414,6 @@
             //alert(data["Category"]);
             console.log("welcome");
             console.log(data["Category"]);
-                        const observationFieldset = document.getElementById("f2");
-            const confirmedTypeRow = document.getElementById("NeedConfirmation");
             // alert(data["PriobabilityOfViolationsWithSameCode"]);
             document.getElementById("violationImgs").innerText = data["images"];
             //document.getElementById("lmCameraPositionns").selected = false;
@@ -580,12 +435,8 @@
             document.getElementById("ConfirmationBy").style.display = 'none';
             document.getElementById("NeedConfirmation").style.display = '';
             document.getElementById("RejectionButton").style.display = '';
-            document.getElementById("RejectionButton").classList.add("disabled");
             document.getElementById("ConfirmationButton").style.display = '';
-            //document.getElementById("ConfirmationButton").disabled =true;
-            document.getElementById("ConfirmationButton").classList.add("disabled");
             document.getElementById("RejectionText").style.display = 'none';
-
             var TypesDD = document.getElementById("ConfirmedTypeList");
             var movingstat = document.getElementById("CarMovingStatus");
             var lmtitle = document.getElementById("lmtitle");
@@ -622,7 +473,15 @@
             op2.selected = false;
             positionss.options[1] = op2;
             if (TypesList.length > 0) {
-       
+            // for (var index = 0; index < TypesList.length; index++) {
+            //     var op = document.createElement('option');
+            //     op.text = TypesList[index].Name;
+            //     op.value = TypesList[index].ID;
+            //     if (TypesList[index].Text == data["ViolationType"]["Name"]) {
+            //         op.selected = true;
+            //     }
+            //     TypesDD.options[index] = op;
+            // }
             for (var index = 0; index < TypesList.length; index++) {
             var op = document.createElement('option');
             op.text = TypesList[index].Name;
@@ -632,9 +491,6 @@
             }
             TypesDD.options[index] = op;
             }
-             observationFieldset.classList.add("d-none");
-            // Show ConfirmedTypeList
-            confirmedTypeRow.classList.add("d-none");
             }
             }
             else if (data["ConfirmationStatus"]["Name"] == "Confirmed") {
@@ -662,7 +518,6 @@
             document.getElementById("RejectionButton").style.display = 'none';
             document.getElementById("ConfirmationButton").style.display = 'none';
             }
-                      
             }
             $('#ViolationNotificationModal').modal('show');
             }

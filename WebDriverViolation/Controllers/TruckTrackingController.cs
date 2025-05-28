@@ -131,7 +131,7 @@ namespace WebDriverViolation.Controllers
                 truck1.TruckName = id;
                 truck1.Category = "camera";
                 truck1.CameraIp = ip;
-                var result = _truckRepository.Add(truck);
+                var result = _truckRepository.Add(truck1);
                 if(result != null)
                 {
                     return JsonSerializer.Serialize(result.Id);

@@ -82,7 +82,13 @@
                             }
                         </div>
                         <div class="col-12">
-                                    <button class="btn btn-primary" type="submit">Submit form</button>
+                                   @*  <button class="btn btn-primary" type="submit">Submit form</button> *@
+                            <button class="btn btn-primary" type="submit" name="submitButton" value="Submit">Submit form</button>
+                            <button class="btn btn-success" type="submit" name="submitButton" value="Export">
+                                <span class="badge badge-light">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                                </span>Export to Excel
+                            </button>
                       </div>
                                 </form>
                     </div>
@@ -124,6 +130,12 @@
                                     <th scope="col"> ConfirmationTypeName</th>
                                     <th scope="col">
                                         Date
+                                    </th>
+                                    <th scope="col">
+                                        Accurate
+                                    </th>
+                                    <th scope="col">
+                                        Observation
                                     </th>
                                 <th></th>
                             </tr>
@@ -185,6 +197,36 @@
                                         <td>
                                                 @Html.DisplayFor(modelItem => item.Date)
                                         </td>
+                                            <td>
+                                                @if (item.Accurate == true)
+                                                {
+                                                    <span style="color:green">Accurate</span>
+                                                }
+                                                else if (item.Accurate == null)
+                                                {
+                                                    <span></span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:red">Not Acurate</span>
+                                                }
+
+                                            </td>
+                                            <td>
+                                                @if (item.Observation == true)
+                                                {
+                                                    <span style="color:green">Observed</span>
+                                                }
+                                                else if (item.Observation == null)
+                                                {
+                                                    <span></span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:red">Not Observed</span>
+                                                }
+
+                                            </td>
                                         <td>
                                                 <button class="btn btn-primary" onclick="showViolationDetails(@item.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels),-1)" title="Show Details">
                                                     Details

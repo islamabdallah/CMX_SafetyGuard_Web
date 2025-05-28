@@ -10,11 +10,11 @@
 }
 
 <div class="pagetitle">
-    <h1>SearchViolation</h1>
+    <h1>SearchEvents</h1>
     <nav>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/DriverViolation/Home/Index">SearchViolation</a></li>
-            <li class="breadcrumb-item active">Violation</li>
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/Index">SearchEvents</a></li>
+            <li class="breadcrumb-item active">Events</li>
         </ol>
     </nav>
 </div><!-- End Page Title -->
@@ -28,8 +28,8 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Search Violations</h5>
-                    <form class="row g-3 needs-validation" novalidate asp-action="SearchPPEViolation">
+                    <h5 class="card-title">Search Events</h5>
+                    <form class="row g-3 needs-validation" novalidate asp-action="SearchPPE_Events">
                         <div class="col-md-6">
                             <label class="form-label">Camera</label>
                             <select class="form-select" style="width: 100%;" id="SelectedTruckID" asp-for="SelectedTruckID" asp-items="@(new SelectList(Model.Trucks, "Id", "TruckName"))">
@@ -47,7 +47,7 @@
                             <label class="form-label">Truck Status</label>
                             <select class="form-select" style="width: 100%;" asp-for="TruckStatusId" id="TruckStatusId">
                                 <option value="2" selected="selected">All</option>
-                             
+
                             </select>
                         </div>
 
@@ -61,11 +61,11 @@
                         <div class="col-md-6">
                             <label for="example-datetime-local-input" class="form-label">To</label>
                             <input class="form-control" type="datetime-local" bind="closedPlatform.Start"
-                            bind:format="yyyy-MM-ddTHH:mm" step=".001" id="To" asp-for="To">
+                                   bind:format="yyyy-MM-ddTHH:mm" step=".001" id="To" asp-for="To">
                         </div>
 
                         <div class="row mt-3">
-                            <label class="form-label" style="text-decoration:underline">Violation Type</label>
+                            <label class="form-label" style="text-decoration:underline">Event Type</label>
                         </div>
                         <div class="row mt-3">
 
@@ -81,7 +81,7 @@
                             }
                         </div>
                         <div class="col-12">
-                           @*  <button class="btn btn-primary" type="submit">Submit form</button> *@
+                            @*  <button class="btn btn-primary" type="submit">Submit form</button> *@
                             <button class="btn btn-primary" type="submit" name="submitButton" value="Submit">Submit form</button>
                             <button class="btn btn-success" type="submit" name="submitButton" value="Export">
                                 <span class="badge badge-light">
@@ -100,7 +100,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        Search Violations
+                        Search Events
                     </h5>
                     @*  <div class="data-tables"> *@
                     @if (Model.ViolationModels != null)
@@ -122,19 +122,13 @@
                                     <th scope="col">
                                         Confirmation Status
                                     </th>
-                                   @*  <th scope="col">
-                                        Truck Status
-                                    </th> *@
+                                    @*  <th scope="col">
+                                Truck Status
+                                </th> *@
                                     <th scope="col"> ConfirmationType</th>
                                     <th scope="col"> ConfirmationTypeName</th>
                                     <th scope="col">
                                         Date
-                                    </th>
-                                    <th scope="col">
-                                        Accurate
-                                    </th>
-                                    <th scope="col">
-                                        Observation
                                     </th>
                                     <th></th>
                                 </tr>
@@ -157,13 +151,13 @@
                                             <td>
                                                 @Html.DisplayFor(modelItem => item.ConfirmationStatus.Name)
                                             </td>
-                                           
+
                                             <td>
                                                 @if (item.ConfirmationViolationTypeID == 10)
                                                 {
                                                     <span style="color:green">NoViolation</span>
                                                 }
-                                                else if (item.ConfirmationStatus.Id==1)
+                                                else if (item.ConfirmationStatus.Id == 1)
                                                 {
                                                     <span></span>
                                                 }
@@ -173,8 +167,8 @@
                                                 }
 
                                             </td>
-                                             <td>
-                                            @if (item.ConfirmationStatus.Id == 1)
+                                            <td>
+                                                @if (item.ConfirmationStatus.Id == 1)
                                                 {
                                                     <span></span>
                                                 }
@@ -182,40 +176,10 @@
                                                 {
                                                     <span>  @_typeservice.GetViolationType(item.ConfirmationViolationTypeID).Name</span>
                                                 }
-                                                
-                                        </td>
+
+                                            </td>
                                             <td>
                                                 @Html.DisplayFor(modelItem => item.Date)
-                                            </td>
-                                            <td>
-                                                @if (item.Accurate == true)
-                                                {
-                                                    <span style="color:green">Accurate</span>
-                                                }
-                                                else if (item.Accurate == null)
-                                                {
-                                                    <span></span>
-                                                }
-                                                else
-                                                {
-                                                    <span style="color:red">Not Acurate</span>
-                                                }
-
-                                            </td>
-                                            <td>
-                                                @if (item.Observation == true)
-                                                {
-                                                    <span style="color:green">Observed</span>
-                                                }
-                                                else if (item.Observation == null)
-                                                {
-                                                    <span></span>
-                                                }
-                                                else
-                                                {
-                                                    <span style="color:red">Not Observed</span>
-                                                }
-
                                             </td>
                                             <td>
                                                 <button class="btn btn-primary" onclick="showViolationDetails(@item.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels),-1)" title="Show Details">
@@ -227,7 +191,7 @@
                                 }
                                 else
                                 {
-                                    <h2>There Is No Violations</h2>
+                                    <h2>There Is No Events</h2>
                                 }
                             </tbody>
                         </table>

@@ -1,0 +1,169 @@
+﻿@model WebDriverViolation.Services.Models.MasterModels.SearchlogfilesModel
+
+@{
+    ViewData["Title"] = "SearchTruckEvents";
+    Layout = "~/Views/Shared/_NiceLayoutCustom.cshtml";
+
+    string checkBoxId = "";
+
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<div class="pagetitle">
+    <h1>SearchTruckLogs</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DriverViolation/Home/Index">SearchTruck</a></li>
+            <li class="breadcrumb-item active">TruckLogs</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section">
+
+
+    <!-- data table start -->
+    <div class="row">
+        <!-- data table start -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Search TruckEvents</h5>
+                    <form class="row g-3 needs-validation" novalidate asp-action="logs">
+                        <div class="col-md-6">
+                            <label class="form-label">Truck</label>
+                            @Html.DropDownListFor(m => m.SelectedTruckID, new SelectList(Model.Trucks), "Select Camera", new { @class = "form-select", @data_toggle = "SelectedTruckID", required = "required" })
+                        </div>
+                      
+
+
+
+                        <div class="col-md-6">
+                            <label for="example-datetime-local-input" class="form-label">Date</label>
+                            <input class="form-control" type="datetime-local" bind="closedPlatform.Start"
+                                   bind:format="yyyy-MM-ddTHH:mm" step=".001" id="From" asp-for="Date">
+                        </div>
+                      
+
+
+
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit" name="submitButton" value="Submit">Submit form</button>
+                           @*  <button class="btn btn-success" type="submit" name="submitButton" value="Export">
+                                <span class="badge badge-light">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                                </span>Export to Excel
+                            </button> *@
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Search Violations
+                    </h5>
+                    @*  <div class="data-tables"> *@
+
+                    <table id="movetable" class="table table-borderless datatable">
+                        @*  <table id="dataTable2" class="table table-borderless datatable dataTable-table"> *@
+                        <thead>
+                            <tr>
+                               
+                                <th scope="col">
+                                    Truck Number
+                                </th>
+                                <th scope="col">
+                                    Date
+                                </th>
+                                <th scope="col">
+                                    FileName
+                                </th>
+                               
+                               @*  <th></th> *@
+                            </tr>
+                        </thead>
+                        @if (Model.logfiles != null)
+                        {
+                            <tbody>
+                                @if (Model.logfiles.Count > 0)
+                                {
+                                    @foreach (var item in Model.logfiles)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.truckId)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.date)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.file)
+                                                <a href="@Url.Action("DownloadFile", "TruckEvents", new { path = @item.filePath })">item.file</a>
+                                            </td>
+                                           
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <h2>There Is No Events</h2>
+                                }
+                            </tbody>
+                        }
+                    </table>
+
+                </div>
+                @* </div> *@
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function showConfirmLPR(item, trucks, feedBacks) {
+        //alert(feedBacks.length);
+        //alert(item.ImageName);
+        //alert(trucks);
+        document.getElementById("lmImage").src = item.ImageName;
+        document.getElementById("lmCamera").innerHTML = item.TruckId;
+        document.getElementById("lmOCR").value = item.OCR;
+        document.getElementById("lmCarId").value = item.Id;
+        var TypesDD = document.getElementById("lmFeedBack");
+        for (var index = 0; index < feedBacks.length; index++) {
+            var op = document.createElement('option');
+            op.text = feedBacks[index];
+            op.value = feedBacks[index];
+            if (feedBacks[index] == "Matched") {
+                op.selected = true;
+            }
+            if (feedBacks[index] == "NotFound") {
+                op.text = "NotFound-ForMobileApp";
+            }
+            TypesDD.options[index] = op;
+        }
+
+
+        $('#confirmLPRmodal').modal('show');
+    }
+</script>
+
+
+
+
+
+
+@* <script src="~/Strdash/assets/js/vendor/jquery-2.2.4.min.js"></script>
+<!-- Start datatable js -->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script> *@

@@ -16,6 +16,7 @@ using Take5.Services.Implementation;
 using WebDriverViolation.Models.Models;
 using WebDriverViolation.Models.Models.MasterModels;
 using WebDriverViolation.Services.Contracts;
+using WebDriverViolation.Services.Implementation;
 using WebDriverViolation.Services.Implementation.Violations;
 using WebDriverViolation.Services.Models;
 using WebDriverViolation.Services.Models.MasterModels;
@@ -57,7 +58,7 @@ namespace WebDriverViolation.Controllers.Violations
                 SearchViolationModel searchViolationModel = new SearchViolationModel();
                 searchViolationModel = _violationService.InitiateViolationSearchModel(searchViolationModel).Result;
                 searchViolationModel.Trucks = searchViolationModel.Trucks.Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category != "camera")).ToList<TruckModel>();
-                searchViolationModel.ViolationTypeModels = searchViolationModel.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category != "camera")).ToList<ViolationTypeModel>();
+                searchViolationModel.ViolationTypeModels = searchViolationModel.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category != "camera" && t.Category != "event")).ToList<ViolationTypeModel>();
 
                 return View(searchViolationModel);
             }
@@ -83,7 +84,7 @@ namespace WebDriverViolation.Controllers.Violations
 
 
         [HttpPost]
-        public ActionResult SearchViolation(SearchViolationModel searchViolationModel)
+        public ActionResult SearchViolation(SearchViolationModel searchViolationModel, string submitButton)
         {
             try
             {
@@ -95,15 +96,33 @@ namespace WebDriverViolation.Controllers.Violations
                         List<ViolationModel> violatioModels = _violationService.SearchForViolation(searchViolationModel).Result;
                         if (violatioModels != null)
                         {
-                            searchViolationModel.ViolationModels = violatioModels.Where<ViolationModel>((t => t.Category != "camera")).ToList<ViolationModel>(); ;
+                            searchViolationModel.ViolationModels = violatioModels.Where<ViolationModel>((t => t.Category != "camera" && t.Category != "event")).ToList<ViolationModel>(); ;
                         }
                         else
                         {
                             searchViolationModel.ViolationModels = new List<ViolationModel>();
                         }
                         searchViolationModel = _violationService.InitiateViolationSearchModel(searchViolationModel).Result;
-                        searchViolationModel.Trucks = searchViolationModel.Trucks.Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category != "camera")).ToList<TruckModel>();
-                        searchViolationModel.ViolationTypeModels = searchViolationModel.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category != "camera")).ToList<ViolationTypeModel>();
+                        searchViolationModel.Trucks = searchViolationModel.Trucks.Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category != "camera" && t.Category != "event")).ToList<TruckModel>();
+                        searchViolationModel.ViolationTypeModels = searchViolationModel.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category != "camera" && t.Category != "event")).ToList<ViolationTypeModel>();
+                        if (submitButton == "Export")
+                        {
+                            if (searchViolationModel.ViolationModels != null)
+                            {
+                                if (searchViolationModel.ViolationModels.Count > 0)
+                                {
+                                    MemoryStream memoryStream = _violationService.ExportViolations(searchViolationModel.ViolationModels);
+
+                                    return File(memoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DriverViolationsReport.xlsx");
+
+                                }
+                                else
+                                {
+                                    TempData["Error"] = "Error in file exporting, There is no Truck Events";
+                                }
+                            }
+                        }
+
                         return View(searchViolationModel);
                     }
                     else
@@ -123,7 +142,7 @@ namespace WebDriverViolation.Controllers.Violations
             }
         }
         [HttpPost]
-        public ActionResult SearchPPEViolation(SearchViolationModel searchViolationModel)
+        public ActionResult SearchPPEViolation(SearchViolationModel searchViolationModel, string submitButton)
         {
             try
             {
@@ -137,6 +156,23 @@ namespace WebDriverViolation.Controllers.Violations
                 searchViolationModel = _violationService.InitiateViolationSearchModel(searchViolationModel).Result;
                 searchViolationModel.Trucks = searchViolationModel.Trucks.Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category == "camera")).ToList<TruckModel>();
                 searchViolationModel.ViolationTypeModels = searchViolationModel.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category == "camera" || t.Category == "all")).ToList<ViolationTypeModel>();
+                if (submitButton == "Export")
+                {
+                    if (searchViolationModel.ViolationModels != null)
+                    {
+                        if (searchViolationModel.ViolationModels.Count > 0)
+                        {
+                            MemoryStream memoryStream = _violationService.ExportViolations(searchViolationModel.ViolationModels);
+
+                            return File(memoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "PPEViolationsReport.xlsx");
+
+                        }
+                        else
+                        {
+                            TempData["Error"] = "Error in file exporting, There is no Truck Events";
+                        }
+                    }
+                }
                 return View("SearchPPEViolation",searchViolationModel);
             }
             catch (Exception ex)
@@ -216,7 +252,7 @@ namespace WebDriverViolation.Controllers.Violations
         public async Task<ActionResult> testAsync()
         {
             List<ViolationModel> violationModels = new List<ViolationModel>();
-            var violations = await _vRepository.Find(v => v.IsVisible == true && v.Category == "camera" && v.ConfirmationViolationTypeID==10 && v.imageName.Contains("_2024-1"), false, v => v.ViolationType).ToListAsync();
+            var violations = await _vRepository.Find(v => v.IsVisible == true && v.Category == "camera" && v.ConfirmationViolationTypeID==10 && v.Date >= Convert.ToDateTime("2024-12-04 23:59:44.1933450"), false, v => v.ViolationType).ToListAsync();
             if (violations != null)
             {
                 violationModels = _mapper.Map<List<ViolationModel>>(violations);
@@ -226,7 +262,7 @@ namespace WebDriverViolation.Controllers.Violations
                 foreach(var violationModel in violationModels)
                 {
                     string image = violationModel.imageName;
-                    string uploadsFolder = Path.Combine(@"C:\inetpub\wwwroot\_driver\wwwroot/", "images/NoViolationImages/");
+                    string uploadsFolder = Path.Combine(@"C:\inetpub\wwwroot\_driver\wwwroot/", "images/ViolationImages/");
                     string filePath = Path.Combine(uploadsFolder, image);
                     string uploadsFolderr = Path.Combine(@"C:\inetpub\wwwroot\_driver\wwwroot/", "images/TempImage/");
                     string filePathh = Path.Combine(uploadsFolderr, image);
@@ -291,7 +327,7 @@ namespace WebDriverViolation.Controllers.Violations
                         }
                     }
 
-                    bool updateResult = _violationService.AddViolationConfirmationDetails(confirmdata.selectedTypeId, confirmdata.Id, loginUser.Id).Result;
+                    bool updateResult = _violationService.AddViolationConfirmationDetails(confirmdata.selectedTypeId, confirmdata.Id, loginUser.Id, confirmdata.Accurate, confirmdata.Observation).Result;
                     return updateResult;
                 }
                 else
@@ -313,7 +349,7 @@ namespace WebDriverViolation.Controllers.Violations
                 if (loginUser != null)
                 {
                     confirmdata.selectedTypeId = (int)CommanData.ViolationTypes.NoViolation;
-                    bool updateResult = _violationService.AddViolationConfirmationDetails(confirmdata.selectedTypeId, confirmdata.Id, loginUser.Id).Result;
+                    bool updateResult = _violationService.AddViolationConfirmationDetails(confirmdata.selectedTypeId, confirmdata.Id, loginUser.Id,confirmdata.Accurate,confirmdata.Observation).Result;
                     return updateResult;
                 }
                 else
@@ -347,6 +383,61 @@ namespace WebDriverViolation.Controllers.Violations
                 return "false";
             }
         }
+
+        public ActionResult SearchPPE_Events()
+        {
+            try
+            {
+                SearchViolationModel result = _violationService.InitiateViolationSearchModel(new SearchViolationModel()).Result;
+                result.Trucks = result.Trucks.Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category == "camera")).ToList<TruckModel>();
+                result.ViolationTypeModels = result.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category == "event" || t.Category == "all")).ToList<ViolationTypeModel>();
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                return (ActionResult)this.RedirectToAction("ERROR404");
+            }
+        }
+        [HttpPost]
+        public ActionResult SearchPPE_Events(SearchViolationModel searchViolationModel, string submitButton)
+        {
+            try
+            {
+                AspNetUser result1 = _userManager.GetUserAsync(User).Result;
+                if (result1 == null)
+                    return RedirectToAction("ERROR404");
+                if (!(result1.Company == "Security"))
+                    return RedirectToAction("ERROR404");
+                List<ViolationModel> result2 = _violationService.SearchForViolation(searchViolationModel).Result;
+                searchViolationModel.ViolationModels = result2 == null ? new List<ViolationModel>() : result2.Where<ViolationModel>((t => t.Category == "event")).ToList<ViolationModel>();
+                searchViolationModel = _violationService.InitiateViolationSearchModel(searchViolationModel).Result;
+                searchViolationModel.Trucks = searchViolationModel.Trucks.Where<TruckModel>((Func<TruckModel, bool>)(t => t.Category == "camera")).ToList<TruckModel>();
+                searchViolationModel.ViolationTypeModels = searchViolationModel.ViolationTypeModels.Where<ViolationTypeModel>((Func<ViolationTypeModel, bool>)(t => t.Category == "event" || t.Category == "all")).ToList<ViolationTypeModel>();
+                if (submitButton == "Export")
+                {
+                    if (searchViolationModel.ViolationModels != null)
+                    {
+                        if (searchViolationModel.ViolationModels.Count > 0)
+                        {
+                            MemoryStream memoryStream = _violationService.ExportViolations(searchViolationModel.ViolationModels);
+
+                            return File(memoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "PPEViolationsReport.xlsx");
+
+                        }
+                        else
+                        {
+                            TempData["Error"] = "Error in file exporting, There is no Truck Events";
+                        }
+                    }
+                }
+                return View("SearchPPE_Events", searchViolationModel);
+            }
+            catch (Exception ex)
+            {
+                return (ActionResult)this.RedirectToAction("ERROR404");
+            }
+        }
+
 
     }
 }

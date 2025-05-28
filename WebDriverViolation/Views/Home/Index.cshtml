@@ -105,6 +105,10 @@
                                                 {
                                                     <td class="">PPE</td>
                                                 }
+                                                else if (violation.Category == "event")
+                                                {
+                                                    <td class="">Event</td>
+                                                }
                                                 else
                                                 {
                                                     <td class="">Driver</td>
@@ -125,6 +129,14 @@
                                                 {
                                                     <td>
                                                         <a class="btn btn-primary" onclick="showViolationDetails(@violation.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels.Where(v=>v.Category == "camera" || v.Category == "all").ToList()), @JsonSerializer.Serialize(confirmButtonId),1)" title="Confirm" style="color:white">
+                                                            Confirm
+                                                        </a>
+                                                    </td>
+                                                }
+                                                else if (violation.Category == "event")
+                                                {
+                                                    <td>
+                                                        <a class="btn btn-primary" onclick="showViolationDetails(@violation.Id,@JsonSerializer.Serialize(Model.ViolationTypeModels.Where(v=>v.Category == "event" || v.Category == "all").ToList()), @JsonSerializer.Serialize(confirmButtonId),1)" title="Confirm" style="color:white">
                                                             Confirm
                                                         </a>
                                                     </td>

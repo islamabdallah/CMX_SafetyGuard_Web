@@ -23,6 +23,7 @@ namespace WebDriverViolation.APIController
         private readonly IOutlookSenderService _outlookSenderService;
         private readonly ITruckService _truckService;
         private readonly IObjectMappingService _objectMappingService;
+        private readonly IViolationTypeService _violationTypeService;
 
         private readonly IViolationTypeAccuracyLavelService _violationTypeAccuracyLavelService;
 
@@ -32,7 +33,7 @@ namespace WebDriverViolation.APIController
              IOutlookSenderService outlookSenderService,
             ITruckService truckService,
             IObjectMappingService objectMappingService,
-            IViolationTypeAccuracyLavelService violationTypeAccuracyLavelService
+            IViolationTypeAccuracyLavelService violationTypeAccuracyLavelService, IViolationTypeService violationTypeService
             )
         {
             _violationService = violationService;
@@ -43,6 +44,7 @@ namespace WebDriverViolation.APIController
             _objectMappingService= objectMappingService;
             _violationTypeAccuracyLavelService = violationTypeAccuracyLavelService;
             _truckDetailsService=truckDetailsService;
+            _violationTypeService= violationTypeService;
         }
 
         // POST api/<ViolationAPIController>
@@ -521,7 +523,11 @@ namespace WebDriverViolation.APIController
                     }
                     else
                         num3 = 100.0;
-                    if (num1 == 1)
+                    //if (violationAPIModels.ViolationAPIModels[0].IsTruckMoving==false)
+                    //{
+                    //    flag2 = false;
+                    //}
+                     if (num1 == 1)
                     {
                         flag2 = lastPreviousAddedViolation.ViolationTypeID == 7 && num3 <= 60.0 && minutesDfiffForPreviousWithSendMail > 300.0 || num3 <= 180.0 && lastPreviousAddedViolation.ViolationTypeID != 7 || true;
                     }
@@ -575,7 +581,7 @@ namespace WebDriverViolation.APIController
                     bool result5 = violationApiController._violationNotificationService.PushRealTimeViolationNotificationToRole(result4, "Supervisor", "Security", violationModel).Result;
                 }
                 List<string> list = ((IEnumerable<string>)truck.MailList.Split(";")).ToList<string>();
-                if (flag2 && list != null && list.Count > 0)
+                if (flag2 && violationModel.IsTruckMoving == true)//(flag2 && list != null && list.Count > 0 && violationModel.IsTruckMoving==true)
                 {
                     string str2 = (!violationModel.IsTruckMoving ? str1 + " , IsTruckMoving= false" : str1 + " , IsTruckMoving= true") + " ,Mode= " + mode.ToString();
                     num2 = violationModel.TotalTime;
@@ -634,7 +640,15 @@ namespace WebDriverViolation.APIController
                     Message = "Successful process",
                     Data = truck
                 });
-            string name = Enum.GetName(typeof(CommanData.ViolationTypes), (object)violation.violType);
+            var typeModel = _violationTypeService.GetViolationType(violation.violType);
+
+            string name = "";// Enum.GetName(typeof(CommanData.ViolationTypes), (object)violation.violType);
+            string category= "camera";
+            if (typeModel != null)
+            {
+                name = typeModel.Name;
+                category = typeModel.Category;
+            }
             string result1 = violationApiController._violationService.GetLastViolationCodeForToday().Result;
             string str1;
             DateTime dateTime1;
@@ -657,7 +671,7 @@ namespace WebDriverViolation.APIController
             model.Code = str1;
             model.Date = violation.time;
             model.AllClassessProbability = "";
-            model.Category = "camera";
+            model.Category = category;
             if (violation.image != null && violation.image.Count > 0)
             {
                 int lmIndex = 0;
@@ -715,7 +729,7 @@ namespace WebDriverViolation.APIController
                 bool result5 = violationApiController._violationNotificationService.PushRealTimeViolationNotificationToRole(result3, "Supervisor", "Security", violationModel).Result;
             }
             List<string> list = ((IEnumerable<string>)truck.MailList.Split(";")).ToList<string>();
-            if (list != null && list.Count > 0 && violation.AvgProp >= 0.7)
+            if(violation.AvgProp >= 0.7) //(list != null && list.Count > 0 && violation.AvgProp >= 0.7)
             {
                 string body = violationApiController._outlookSenderService.PrapareMailBody(violationModel, str2);
                 List<string> toMails = new List<string>()
@@ -809,5 +823,27 @@ namespace WebDriverViolation.APIController
                 Data = true
             });
         }
+
+
+        [HttpPost("DriverBehaviour")]
+        public async Task<ActionResult> DriverBehaviour(DriverModel driverModel)
+        {
+
+            if(driverModel == null)
+                return (ActionResult)BadRequest((object)new
+                {
+                    Message = "Error , Driver not exist",
+                    Data = false
+                });
+
+            var _driverBehaviour = await _violationService.GetDriverBehaviour(driverModel.DriverNumber);
+            return (ActionResult)Ok((object)new
+            {
+                flag = true,
+                Message = "Error , Driver not exist",
+                Data = _driverBehaviour
+            });
+        }
+
     }
 }
